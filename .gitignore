@@ -1,0 +1,21 @@
+
+*~
+
+# Build products
+target/
+build/
+
+# IntelliJ data
+*.iml
+.idea/
+.ipr
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Documentation build output
+/docs/_build
+
+.DS_Store
