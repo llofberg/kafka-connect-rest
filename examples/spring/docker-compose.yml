@@ -28,9 +28,6 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://:9092"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    volumes:
-      - ./:/data
-      - ../../target/kafka-connect-rest-1.0-SNAPSHOT-package/share/java/kafka-connect-rest:/jars
 
   schema_registry:
     hostname: schema_registry
@@ -75,5 +72,4 @@ services:
       CONNECT_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       CONNECT_PLUGIN_PATH: /usr/share/java,/jars
     volumes:
-      - ./:/data
       - ../../target/kafka-connect-rest-1.0-SNAPSHOT-package/share/java/kafka-connect-rest:/jars

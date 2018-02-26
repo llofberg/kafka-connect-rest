@@ -19,7 +19,7 @@ public class GreetingController {
 
     @RequestMapping("/greeting")
     public Greeting greeting(@RequestParam(value = "name", defaultValue = "") String name) {
-        log.error("Name: '{}'", name);
+        log.debug("Name: '{}'", name);
         if ("".equals(name)) {
             name = world;
         } else {

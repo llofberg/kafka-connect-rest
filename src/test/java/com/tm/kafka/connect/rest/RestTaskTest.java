@@ -175,6 +175,7 @@ public class RestTaskTest {
     sinkTask.start(props);
 
     records.clear();
+    Object value = "{\"id\":1, \"content\":\"Joe\"}";
     records.add(
       new SinkRecord(
         TOPIC,
@@ -182,7 +183,7 @@ public class RestTaskTest {
         STRING_SCHEMA,
         key,
         STRING_SCHEMA,
-        "a=b",
+        value,
         offset,
         timestamp,
         TimestampType.CREATE_TIME
@@ -191,7 +192,6 @@ public class RestTaskTest {
     sinkTask.put(records);
 
     verify(getRequestedFor(urlMatching(PATH + "\\?.*"))
-      .withQueryParam("a", equalTo("b"))
       .withHeader(CONTENT_TYPE, matching(APPLICATION_JSON)));
   }
 
