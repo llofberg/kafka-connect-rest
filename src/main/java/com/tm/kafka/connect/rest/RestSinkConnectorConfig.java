@@ -29,13 +29,9 @@ public class RestSinkConnectorConfig extends AbstractConfig {
   private static final String SINK_PROPERTIES_LIST_DOC = "The request properties (headers) for REST sink connector.";
   private static final String SINK_PROPERTIES_LIST_DISPLAY = "Sink properties";
 
-  static final String SINK_URL_CONFIG = "rest.sink.url";
+  public static final String SINK_URL_CONFIG = "rest.sink.url";
   private static final String SINK_URL_DOC = "The URL for REST sink connector.";
   private static final String SINK_URL_DISPLAY = "URL for REST sink connector.";
-
-  static final String SINK_TOPIC_LIST_CONFIG = "rest.sink.source.topics";
-  private static final String SINK_TOPIC_LIST_DOC = "The  list of source topics for the REST sink connector.";
-  private static final String SINK_TOPIC_LIST_DISPLAY = "Sink source topics";
 
   static final String SINK_PAYLOAD_CONVERTER_CONFIG = "rest.sink.payload.converter.class";
   private static final Class<? extends SinkRecordToPayloadConverter> PAYLOAD_CONVERTER_DEFAULT =
@@ -55,7 +51,7 @@ public class RestSinkConnectorConfig extends AbstractConfig {
     super(config, parsedConfig);
   }
 
-  RestSinkConnectorConfig(Map<String, String> parsedConfig) {
+  public RestSinkConnectorConfig(Map<String, String> parsedConfig) {
     this(conf(), parsedConfig);
   }
 
@@ -95,16 +91,6 @@ public class RestSinkConnectorConfig extends AbstractConfig {
         ConfigDef.Width.SHORT,
         SINK_URL_DISPLAY)
 
-      .define(SINK_TOPIC_LIST_CONFIG,
-        Type.LIST,
-        NO_DEFAULT_VALUE,
-        Importance.HIGH,
-        SINK_TOPIC_LIST_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.SHORT,
-        SINK_TOPIC_LIST_DISPLAY)
-
       .define(SINK_PAYLOAD_CONVERTER_CONFIG,
         Type.CLASS,
         PAYLOAD_CONVERTER_DEFAULT,
@@ -139,10 +125,6 @@ public class RestSinkConnectorConfig extends AbstractConfig {
 
   public String getUrl() {
     return this.getString(SINK_URL_CONFIG);
-  }
-
-  public List<String> getTopics() {
-    return this.getList(SINK_TOPIC_LIST_CONFIG);
   }
 
   public Long getRetryBackoff() {
@@ -224,10 +206,4 @@ public class RestSinkConnectorConfig extends AbstractConfig {
       return new MethodRecommender().validValues("", new HashMap<>()).toString();
     }
   }
-
-  public static void main(String[] args) {
-    System.out.println(VersionUtil.getVersion());
-    System.out.println(getConfig().toEnrichedRst());
-  }
-
 }

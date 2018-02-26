@@ -2,9 +2,9 @@ package com.tm.kafka.connect.rest;
 
 import com.tm.kafka.connect.rest.converter.BytesPayloadConverter;
 import com.tm.kafka.connect.rest.converter.PayloadToSourceRecordConverter;
-import com.tm.kafka.connect.rest.selector.SimpleTopicSelector;
 import com.tm.kafka.connect.rest.converter.SinkRecordToPayloadConverter;
 import com.tm.kafka.connect.rest.converter.StringPayloadConverter;
+import com.tm.kafka.connect.rest.selector.SimpleTopicSelector;
 import com.tm.kafka.connect.rest.selector.TopicSelector;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
@@ -24,6 +24,12 @@ import java.util.stream.Collectors;
 import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
 
 public class RestSourceConnectorConfig extends AbstractConfig {
+
+  static final String SOURCE_POLL_INTERVAL_CONFIG = "rest.source.poll.interval.ms";
+  private static final String SOURCE_POLL_INTERVAL_DOC = "How often to poll the source URL.";
+  private static final String SOURCE_POLL_INTERVAL_DISPLAY = "Polling interval";
+  private static final Long SOURCE_POLL_INTERVAL_DEFAULT = 60000L;
+
   static final String SOURCE_METHOD_CONFIG = "rest.source.method";
   private static final String SOURCE_METHOD_DOC = "The HTTP method for REST source connector.";
   private static final String SOURCE_METHOD_DISPLAY = "Source method";
@@ -40,6 +46,7 @@ public class RestSourceConnectorConfig extends AbstractConfig {
   static final String SOURCE_DATA_CONFIG = "rest.source.data";
   private static final String SOURCE_DATA_DOC = "The data for REST source connector.";
   private static final String SOURCE_DATA_DISPLAY = "Data for REST source connector.";
+  private static final String SOURCE_DATA_DEFAULT = null;
 
   static final String SOURCE_TOPIC_SELECTOR_CONFIG = "rest.source.topic.selector";
   private static final String SOURCE_TOPIC_SELECTOR_DOC = "The topic selector class for REST source connector.";
@@ -69,6 +76,16 @@ public class RestSourceConnectorConfig extends AbstractConfig {
     String group = "REST";
     int orderInGroup = 0;
     return new ConfigDef()
+      .define(SOURCE_POLL_INTERVAL_CONFIG,
+        Type.LONG,
+        SOURCE_POLL_INTERVAL_DEFAULT,
+        Importance.LOW,
+        SOURCE_POLL_INTERVAL_DOC,
+        group,
+        ++orderInGroup,
+        ConfigDef.Width.SHORT,
+        SOURCE_POLL_INTERVAL_DISPLAY)
+
       .define(SOURCE_METHOD_CONFIG,
         Type.STRING,
         SOURCE_METHOD_DEFAULT,
@@ -103,7 +120,7 @@ public class RestSourceConnectorConfig extends AbstractConfig {
 
       .define(SOURCE_DATA_CONFIG,
         Type.STRING,
-        NO_DEFAULT_VALUE,
+        SOURCE_DATA_DEFAULT,
         Importance.LOW,
         SOURCE_DATA_DOC,
         group,
@@ -137,15 +154,19 @@ public class RestSourceConnectorConfig extends AbstractConfig {
       .define(SOURCE_PAYLOAD_CONVERTER_CONFIG,
         Type.CLASS,
         PAYLOAD_CONVERTER_DEFAULT,
-        new PayloadConverterValidator(),
+        new PayloadToSourceRecordConverterValidator(),
         Importance.LOW,
         SOURCE_PAYLOAD_CONVERTER_DOC_CONFIG,
         group,
         ++orderInGroup,
         ConfigDef.Width.SHORT,
         SOURCE_PAYLOAD_CONVERTER_DISPLAY_CONFIG,
-        new PayloadConverterRecommender())
+        new PayloadToSourceRecordConverterRecommender())
       ;
+  }
+
+  public Long getPollInterval() {
+    return this.getLong(SOURCE_POLL_INTERVAL_CONFIG);
   }
 
   public String getMethod() {
@@ -194,7 +215,7 @@ public class RestSourceConnectorConfig extends AbstractConfig {
       .collect(Collectors.toMap(a -> a[0], a -> a[1]));
   }
 
-  private static class PayloadConverterRecommender implements ConfigDef.Recommender {
+  private static class PayloadToSourceRecordConverterRecommender implements ConfigDef.Recommender {
     @Override
     public List<Object> validValues(String name, Map<String, Object> connectorConfigs) {
       return Arrays.asList(StringPayloadConverter.class, BytesPayloadConverter.class);
@@ -206,19 +227,19 @@ public class RestSourceConnectorConfig extends AbstractConfig {
     }
   }
 
-  private static class PayloadConverterValidator implements ConfigDef.Validator {
+  private static class PayloadToSourceRecordConverterValidator implements ConfigDef.Validator {
     @Override
     public void ensureValid(String name, Object provider) {
       if (provider != null && provider instanceof Class
-        && SinkRecordToPayloadConverter.class.isAssignableFrom((Class<?>) provider)) {
+        && PayloadToSourceRecordConverter.class.isAssignableFrom((Class<?>) provider)) {
         return;
       }
-      throw new ConfigException(name, provider, "Class must extend: " + SinkRecordToPayloadConverter.class);
+      throw new ConfigException(name, provider, "Class must extend: " + PayloadToSourceRecordConverter.class);
     }
 
     @Override
     public String toString() {
-      return "Any class implementing: " + SinkRecordToPayloadConverter.class;
+      return "Any class implementing: " + PayloadToSourceRecordConverter.class;
     }
   }
 

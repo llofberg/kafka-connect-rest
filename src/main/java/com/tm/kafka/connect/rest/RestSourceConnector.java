@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class RestSourceConnector extends SourceConnector {
   private static Logger log = LoggerFactory.getLogger(RestSourceConnector.class);
-  private RestSinkConnectorConfig config;
+  private RestSourceConnectorConfig config;
 
   @Override
   public String version() {
@@ -22,7 +22,7 @@ public class RestSourceConnector extends SourceConnector {
 
   @Override
   public void start(Map<String, String> map) {
-    config = new RestSinkConnectorConfig(map);
+    config = new RestSourceConnectorConfig(map);
   }
 
   @Override
@@ -46,6 +46,6 @@ public class RestSourceConnector extends SourceConnector {
 
   @Override
   public ConfigDef config() {
-    return RestSinkConnectorConfig.conf();
+    return RestSourceConnectorConfig.conf();
   }
 }

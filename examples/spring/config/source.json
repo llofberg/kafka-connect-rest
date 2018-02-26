@@ -1,0 +1,14 @@
+{
+  "name": "RestSourceConnectorSpring",
+  "config": {
+    "connector.class": "com.tm.kafka.connect.rest.RestSourceConnector",
+    "tasks.max": "1",
+    "rest.source.poll.interval.ms": "10000",
+    "rest.source.method": "GET",
+    "rest.source.url": "http://webservice:8080/greeting",
+    "rest.source.payload.converter.class": "com.tm.kafka.connect.rest.converter.StringPayloadConverter",
+    "rest.source.properties": "Content-Type:application/json,Accept::application/json",
+    "rest.source.topic.selector": "com.tm.kafka.connect.rest.selector.SimpleTopicSelector",
+    "rest.source.destination.topics": "restSourceDestinationTopic"
+  }
+}

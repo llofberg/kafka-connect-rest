@@ -41,7 +41,6 @@ public class RestTaskTest {
 
   private static final String TOPIC = "rest-source-destination-topic";
   private static final String REST_SOURCE_DESTINATION_TOPIC_LIST = TOPIC;
-  private static final String REST_SINK_SOURCE_TOPIC_LIST = TOPIC;
 
   private static final String METHOD = "POST";
   private static final String PROPERTIES_LIST = "" +
@@ -66,7 +65,7 @@ public class RestTaskTest {
   public WireMockRule wireMockRule = new WireMockRule(PORT);
 
   @Test
-  public void restTest() {
+  public void restTest() throws InterruptedException {
     stubFor(post(urlEqualTo(PATH))
       .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
       .willReturn(aResponse()
@@ -74,7 +73,8 @@ public class RestTaskTest {
         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
         .withBody(RESPONSE_BODY)));
 
-    Map<String, String> props = new HashMap<String, String>() {{
+    Map<String, String> props;
+    props = new HashMap<String, String>() {{
       put(RestSourceConnectorConfig.SOURCE_METHOD_CONFIG, METHOD);
       put(RestSourceConnectorConfig.SOURCE_PROPERTIES_LIST_CONFIG, PROPERTIES_LIST);
       put(RestSourceConnectorConfig.SOURCE_URL_CONFIG, URL);
@@ -82,12 +82,6 @@ public class RestTaskTest {
       put(RestSourceConnectorConfig.SOURCE_TOPIC_SELECTOR_CONFIG, TOPIC_SELECTOR);
       put(RestSourceConnectorConfig.SOURCE_TOPIC_LIST_CONFIG, REST_SOURCE_DESTINATION_TOPIC_LIST);
       put(RestSourceConnectorConfig.SOURCE_PAYLOAD_CONVERTER_CONFIG, STRING_PAYLOAD_CONVERTER);
-
-      put(RestSinkConnectorConfig.SINK_METHOD_CONFIG, METHOD);
-      put(RestSinkConnectorConfig.SINK_PROPERTIES_LIST_CONFIG, PROPERTIES_LIST);
-      put(RestSinkConnectorConfig.SINK_URL_CONFIG, URL);
-      put(RestSinkConnectorConfig.SINK_TOPIC_LIST_CONFIG, REST_SINK_SOURCE_TOPIC_LIST);
-      put(RestSinkConnectorConfig.SINK_PAYLOAD_CONVERTER_CONFIG, STRING_PAYLOAD_CONVERTER);
     }};
 
     RestSourceTask sourceTask;
@@ -125,7 +119,14 @@ public class RestTaskTest {
 
     wireMockRule.resetRequests();
 
+    props = new HashMap<String, String>() {{
+      put(RestSinkConnectorConfig.SINK_METHOD_CONFIG, METHOD);
+      put(RestSinkConnectorConfig.SINK_URL_CONFIG, URL);
+      put(RestSinkConnectorConfig.SINK_PROPERTIES_LIST_CONFIG, PROPERTIES_LIST);
+      put(RestSinkConnectorConfig.SINK_PAYLOAD_CONVERTER_CONFIG, STRING_PAYLOAD_CONVERTER);
+    }};
     String key = "key1";
+
     long offset = 100;
     long timestamp = 200L;
 
@@ -159,6 +160,9 @@ public class RestTaskTest {
 
     wireMockRule.resetAll();
 
+    props.put(RestSinkConnectorConfig.SINK_METHOD_CONFIG, "GET");
+    props.put(RestSinkConnectorConfig.SINK_URL_CONFIG, URL + "?");
+
     stubFor(get(urlMatching(PATH + ".*"))
       .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
       .willReturn(aResponse()
@@ -166,8 +170,6 @@ public class RestTaskTest {
         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
         .withBody(RESPONSE_BODY)));
 
-    props.put(RestSinkConnectorConfig.SINK_METHOD_CONFIG, "GET");
-    props.put(RestSinkConnectorConfig.SINK_URL_CONFIG, URL + "?");
     sinkTask = new RestSinkTask();
     sinkTask.initialize(context);
     sinkTask.start(props);
@@ -188,7 +190,7 @@ public class RestTaskTest {
 
     sinkTask.put(records);
 
-    verify(getRequestedFor(urlMatching(PATH+"\\?.*"))
+    verify(getRequestedFor(urlMatching(PATH + "\\?.*"))
       .withQueryParam("a", equalTo("b"))
       .withHeader(CONTENT_TYPE, matching(APPLICATION_JSON)));
   }

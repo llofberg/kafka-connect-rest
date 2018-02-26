@@ -1,7 +1,6 @@
 package com.tm.kafka.connect.rest;
 
 import com.tm.kafka.connect.rest.converter.SinkRecordToPayloadConverter;
-import lombok.Data;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.errors.RetriableException;
@@ -13,12 +12,12 @@ import org.slf4j.LoggerFactory;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Data
 public class RestSinkTask extends SinkTask {
   private static Logger log = LoggerFactory.getLogger(RestSinkTask.class);
 
@@ -37,7 +36,7 @@ public class RestSinkTask extends SinkTask {
     requestProperties = connectorConfig.getRequestProperties();
     url = connectorConfig.getUrl();
     converter = connectorConfig.getSinkRecordToPayloadConverter();
-    converter.start(map);
+    converter.start(connectorConfig);
   }
 
   @Override
@@ -45,10 +44,11 @@ public class RestSinkTask extends SinkTask {
     records.forEach(record -> {
       try {
         String data = converter.convert(record);
+        String u = url;
         if ("GET".equals(method)) {
-          url += data;
+          u = u + URLEncoder.encode(data, "UTF-8");
         }
-        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        HttpURLConnection conn = (HttpURLConnection) new URL(u).openConnection();
         requestProperties.forEach(conn::setRequestProperty);
         conn.setRequestMethod(method);
         if ("POST".equals(method)) {
