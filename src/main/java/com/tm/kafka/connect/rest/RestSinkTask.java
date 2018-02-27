@@ -15,6 +15,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -41,8 +42,8 @@ public class RestSinkTask extends SinkTask {
 
   @Override
   public void put(Collection<SinkRecord> records) {
-    records.forEach(record -> {
-      try {
+    try {
+      for (SinkRecord record : records) {
         String data = converter.convert(record);
         String u = url;
         if ("GET".equals(method)) {
@@ -64,10 +65,10 @@ public class RestSinkTask extends SinkTask {
         Map<Integer, Long> topicOffsets = offsets.getOrDefault(record.topic(), new HashMap<>());
         topicOffsets.put(record.kafkaPartition(), record.kafkaOffset());
         offsets.put(record.topic(), topicOffsets);
-      } catch (Exception e) {
-        throw new RetriableException("REST sink put failed.", e);
       }
-    });
+    } catch (Exception e) {
+      throw new RetriableException("REST sink put failed.", e);
+    }
   }
 
   public Map<TopicPartition, OffsetAndMetadata> preCommit(Map<TopicPartition, OffsetAndMetadata> currentOffsets) {

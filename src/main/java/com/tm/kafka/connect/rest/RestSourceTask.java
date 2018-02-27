@@ -43,7 +43,6 @@ public class RestSourceTask extends SourceTask {
     long millis = pollInterval - (System.currentTimeMillis() - lastPollTime);
     if (millis > 0) {
       Thread.sleep(millis);
-      return Collections.emptyList();
     }
     try {
       HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
@@ -62,7 +61,7 @@ public class RestSourceTask extends SourceTask {
     } catch (Exception e) {
       log.error("REST source connector poll() failed", e);
       return Collections.emptyList();
-    }finally {
+    } finally {
       lastPollTime = System.currentTimeMillis();
     }
   }

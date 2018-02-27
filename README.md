@@ -12,7 +12,9 @@ Building and running in docker
     docker-compose up -d
     
     docker exec -it spring_connect_1 bash -c \
-     "kafka-topics --zookeeper zookeeper --topic restSourceDestinationTopic --create --replication-factor 1 --partitions 1"
+     "kafka-topics --zookeeper zookeeper \
+       --topic restSourceDestinationTopic --create \
+       --replication-factor 1 --partitions 1"
     
     curl -X POST \
        -H 'Host: connect.example.com' \
@@ -27,6 +29,8 @@ Building and running in docker
       http://localhost:8083/connectors -d @config/source.json
 
     docker exec -it spring_connect_1 bash -c \
-     "kafka-console-consumer --bootstrap-server kafka:9092 --topic restSourceDestinationTopic --from-beginning"
+     "kafka-avro-console-consumer --bootstrap-server kafka:9092 \
+      --topic restSourceDestinationTopic --from-beginning \
+      --property schema.registry.url=http://schema_registry:8081/"
 
     docker-compose down

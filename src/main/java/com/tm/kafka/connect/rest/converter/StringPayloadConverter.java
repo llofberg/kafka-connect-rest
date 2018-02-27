@@ -23,8 +23,11 @@ public class StringPayloadConverter implements SinkRecordToPayloadConverter, Pay
   private TopicSelector topicSelector;
 
   public String convert(SinkRecord record) {
-    String string = record.value().toString();
-    return string;
+    if (log.isTraceEnabled()) {
+      log.error("SinkRecord: {}", record.toString());
+    }
+
+    return record.value().toString();
   }
 
   public List<SourceRecord> convert(byte[] bytes) {
@@ -33,7 +36,11 @@ public class StringPayloadConverter implements SinkRecordToPayloadConverter, Pay
     Map<String, Long> sourceOffset = Collections.singletonMap("timestamp", currentTimeMillis());
     String topic = topicSelector.getTopic(bytes);
     String value = new String(bytes);
-    records.add(new SourceRecord(sourcePartition, sourceOffset, topic, Schema.STRING_SCHEMA, value));
+    SourceRecord sourceRecord = new SourceRecord(sourcePartition, sourceOffset, topic, Schema.STRING_SCHEMA, value);
+    if (log.isTraceEnabled()) {
+      log.trace("SourceRecord: {}", sourceRecord);
+    }
+    records.add(sourceRecord);
     return records;
   }
 
@@ -48,5 +55,4 @@ public class StringPayloadConverter implements SinkRecordToPayloadConverter, Pay
   public void start(RestSinkConnectorConfig config) {
     url = config.getUrl();
   }
-
 }
