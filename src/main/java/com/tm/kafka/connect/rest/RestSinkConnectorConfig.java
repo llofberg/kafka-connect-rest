@@ -46,9 +46,21 @@ public class RestSinkConnectorConfig extends AbstractConfig {
       + "delivering a message batch or performing recovery in case of transient exceptions.";
   private static final long SINK_RETRY_BACKOFF_DEFAULT = 5000L;
   private static final String SINK_RETRY_BACKOFF_DISPLAY = "Retry Backoff (ms)";
+  private final SinkRecordToPayloadConverter sinkRecordToPayloadConverter;
+  private final Map<String, String> requestProperties;
 
+  @SuppressWarnings("unchecked")
   private RestSinkConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
     super(config, parsedConfig);
+    try {
+      sinkRecordToPayloadConverter = ((Class<? extends SinkRecordToPayloadConverter>)
+        getClass(SINK_PAYLOAD_CONVERTER_CONFIG)).getDeclaredConstructor().newInstance();
+    } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException e) {
+      throw new ConnectException("Invalid class for: " + SINK_PAYLOAD_CONVERTER_CONFIG, e);
+    }
+    requestProperties = getPropertiesList().stream()
+      .map(a -> a.split(":"))
+      .collect(Collectors.toMap(a -> a[0], a -> a[1]));
   }
 
   public RestSinkConnectorConfig(Map<String, String> parsedConfig) {
@@ -131,20 +143,12 @@ public class RestSinkConnectorConfig extends AbstractConfig {
     return this.getLong(SINK_RETRY_BACKOFF_CONFIG);
   }
 
-  @SuppressWarnings("unchecked")
   public SinkRecordToPayloadConverter getSinkRecordToPayloadConverter() {
-    try {
-      return ((Class<? extends SinkRecordToPayloadConverter>)
-        getClass(SINK_PAYLOAD_CONVERTER_CONFIG)).getDeclaredConstructor().newInstance();
-    } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException e) {
-      throw new ConnectException("Invalid class for: " + SINK_PAYLOAD_CONVERTER_CONFIG, e);
-    }
+    return sinkRecordToPayloadConverter;
   }
 
   public Map<String, String> getRequestProperties() {
-    return getPropertiesList().stream()
-      .map(a -> a.split(":"))
-      .collect(Collectors.toMap(a -> a[0], a -> a[1]));
+    return requestProperties;
   }
 
   private static class PayloadConverterRecommender implements ConfigDef.Recommender {
@@ -187,7 +191,7 @@ public class RestSinkConnectorConfig extends AbstractConfig {
   private static class MethodRecommender implements ConfigDef.Recommender {
     @Override
     public List<Object> validValues(String name, Map<String, Object> connectorConfigs) {
-      return Arrays.asList("GET", "POST", "HEAD", "OPTIONS", "PUT", "DELETE", "TRACE");
+      return Arrays.asList("GET", "POST");
     }
 
     @Override
