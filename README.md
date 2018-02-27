@@ -40,4 +40,4 @@ to org.apache.kafka.connect.storage.StringConverter if you don't want to use Avr
 
     docker exec -it spring_connect_1 bash -c \
      "kafka-console-consumer --bootstrap-server kafka:9092 \
-      --topic restSourceDestinationTopic --from-beginning
+      --topic restSourceDestinationTopic --from-beginning"
