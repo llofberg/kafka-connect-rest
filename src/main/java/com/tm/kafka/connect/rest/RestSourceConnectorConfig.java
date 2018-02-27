@@ -2,7 +2,6 @@ package com.tm.kafka.connect.rest;
 
 import com.tm.kafka.connect.rest.converter.BytesPayloadConverter;
 import com.tm.kafka.connect.rest.converter.PayloadToSourceRecordConverter;
-import com.tm.kafka.connect.rest.converter.SinkRecordToPayloadConverter;
 import com.tm.kafka.connect.rest.converter.StringPayloadConverter;
 import com.tm.kafka.connect.rest.selector.SimpleTopicSelector;
 import com.tm.kafka.connect.rest.selector.TopicSelector;
@@ -63,9 +62,25 @@ public class RestSourceConnectorConfig extends AbstractConfig {
   private static final String SOURCE_PAYLOAD_CONVERTER_DOC_CONFIG =
     "Class to be used to convert messages from REST calls to SourceRecords";
   private static final String SOURCE_PAYLOAD_CONVERTER_DISPLAY_CONFIG = "Payload converter class";
+  private final TopicSelector topicSelector;
+  private final PayloadToSourceRecordConverter payloadToSourceRecordConverter;
+  private final Map<String, String> requestProperties;
 
+  @SuppressWarnings("unchecked")
   private RestSourceConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
     super(config, parsedConfig);
+    try {
+      topicSelector = ((Class<? extends TopicSelector>)
+        getClass(SOURCE_TOPIC_SELECTOR_CONFIG)).getDeclaredConstructor().newInstance();
+      payloadToSourceRecordConverter = ((Class<? extends PayloadToSourceRecordConverter>)
+        getClass(SOURCE_PAYLOAD_CONVERTER_CONFIG)).getDeclaredConstructor().newInstance();
+    } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException e) {
+      throw new ConnectException("Invalid class for: " + SOURCE_PAYLOAD_CONVERTER_CONFIG, e);
+    }
+    requestProperties = getPropertiesList().stream()
+      .map(a -> a.split(":"))
+      .collect(Collectors.toMap(a -> a[0], a -> a[1]));
+
   }
 
   public RestSourceConnectorConfig(Map<String, String> parsedConfig) {
@@ -185,34 +200,20 @@ public class RestSourceConnectorConfig extends AbstractConfig {
     return this.getList(SOURCE_TOPIC_LIST_CONFIG);
   }
 
-  @SuppressWarnings("unchecked")
   public TopicSelector getTopicSelector() {
-    try {
-      return ((Class<? extends TopicSelector>)
-        getClass(SOURCE_TOPIC_SELECTOR_CONFIG)).getDeclaredConstructor().newInstance();
-    } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException e) {
-      throw new ConnectException("Invalid class for: " + SOURCE_TOPIC_SELECTOR_CONFIG, e);
-    }
+    return topicSelector;
   }
 
   public String getData() {
     return this.getString(SOURCE_DATA_CONFIG);
   }
 
-  @SuppressWarnings("unchecked")
   public PayloadToSourceRecordConverter getPayloadToSourceRecordConverter() {
-    try {
-      return ((Class<? extends PayloadToSourceRecordConverter>)
-        getClass(SOURCE_PAYLOAD_CONVERTER_CONFIG)).getDeclaredConstructor().newInstance();
-    } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException e) {
-      throw new ConnectException("Invalid class for: " + SOURCE_PAYLOAD_CONVERTER_CONFIG, e);
-    }
+    return payloadToSourceRecordConverter;
   }
 
   public Map<String, String> getRequestProperties() {
-    return getPropertiesList().stream()
-      .map(a -> a.split(":"))
-      .collect(Collectors.toMap(a -> a[0], a -> a[1]));
+    return requestProperties;
   }
 
   private static class PayloadToSourceRecordConverterRecommender implements ConfigDef.Recommender {
