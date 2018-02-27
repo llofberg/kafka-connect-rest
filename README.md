@@ -34,3 +34,10 @@ Building and running in docker
       --property schema.registry.url=http://schema_registry:8081/"
 
     docker-compose down
+
+Change CONNECT_VALUE_CONVERTER in the docker-compose.yml from
+to org.apache.kafka.connect.storage.StringConverter if you don;t want to use Avro.
+
+    docker exec -it spring_connect_1 bash -c \
+     "kafka-console-consumer --bootstrap-server kafka:9092 \
+      --topic restSourceDestinationTopic --from-beginning
