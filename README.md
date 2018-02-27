@@ -35,8 +35,8 @@ Building and running in docker
 
     docker-compose down
 
-Change CONNECT_VALUE_CONVERTER in the docker-compose.yml from
-to org.apache.kafka.connect.storage.StringConverter if you don;t want to use Avro.
+Change CONNECT_VALUE_CONVERTER in the docker-compose.yml
+to org.apache.kafka.connect.storage.StringConverter if you don't want to use Avro.
 
     docker exec -it spring_connect_1 bash -c \
      "kafka-console-consumer --bootstrap-server kafka:9092 \
