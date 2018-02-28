@@ -15,7 +15,9 @@
  */
 package hello;
 
+import static org.springframework.http.RequestEntity.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -40,15 +43,20 @@ public class GreetingControllerTests {
     public void noParamGreetingShouldReturnDefaultMessage() throws Exception {
 
         this.mockMvc.perform(get("/greeting")).andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("Hello, World!"));
-    }
-
-    @Test
-    public void paramGreetingShouldReturnTailoredMessage() throws Exception {
+                .andExpect(jsonPath("$.content").value("Hello, World! (0)"));
 
         this.mockMvc.perform(get("/greeting").param("name", "Spring Community"))
                 .andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("Hello, Spring Community!"));
-    }
+                .andExpect(jsonPath("$.content").value("Hello, Spring Community! (0)"));
 
+        this.mockMvc.perform(post("/count")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"id\":1,\"content\":\"Hello, World 1!\"}"))
+                //.param("name", "Spring Community"))
+                .andDo(print()).andExpect(status().isOk());
+
+        this.mockMvc.perform(get("/greeting").param("name", "Spring Community"))
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").value("Hello, Spring Community! (1)"));
+    }
 }

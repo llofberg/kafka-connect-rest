@@ -3,6 +3,8 @@ package hello;
 import com.google.gson.Gson;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,23 +15,19 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class GreetingController {
     private final Gson gson = new Gson();
-    private static final String template = "Hello, %s!";
+    private static final String template = "Hello, %s! (%d)";
     private final AtomicLong counter = new AtomicLong();
-    private String world = "World";
+    private long count = 0L;
 
     @RequestMapping("/greeting")
-    public Greeting greeting(@RequestParam(value = "name", defaultValue = "") String name) {
-        log.debug("Name: '{}'", name);
-        if ("".equals(name)) {
-            name = world;
-        } else {
-            try {
-                Msg msg = gson.fromJson(name, Msg.class);
-                world = "World " + msg.id;
-            } catch (Exception ignored) {
-            }
-        }
-        return new Greeting(counter.incrementAndGet(), String.format(template, name));
+    public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
+        return new Greeting(counter.incrementAndGet(), String.format(template, name, count));
+    }
+
+    @PostMapping(value = "/count")
+    public void count(@RequestBody Greeting greeting) {
+        log.info("GREETING: '{}'", greeting);
+        this.count = greeting.getId();
     }
 
     @Data
