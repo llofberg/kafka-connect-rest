@@ -1,6 +1,5 @@
 package hello;
 
-import com.google.gson.Gson;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +13,6 @@ import java.util.concurrent.atomic.AtomicLong;
 @RestController
 @Slf4j
 public class GreetingController {
-    private final Gson gson = new Gson();
     private static final String template = "Hello, %s! (%d)";
     private final AtomicLong counter = new AtomicLong();
     private long count = 0L;
