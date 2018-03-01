@@ -1,6 +1,5 @@
 package hello;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,13 +23,7 @@ public class GreetingController {
 
     @PostMapping(value = "/count")
     public void count(@RequestBody Greeting greeting) {
-        log.info("GREETING: '{}'", greeting);
+        log.info("Greeting: '{}'", greeting);
         this.count = greeting.getId();
-    }
-
-    @Data
-    static class Msg {
-        int id;
-        String content;
     }
 }
