@@ -52,7 +52,7 @@ You will need gcloud installed and a GCP project with payments enabled.
     
 Replace '\<REGION>' and '\<PROJECTID>' in rest.source.url in config/source.json.
 
-  "rest.source.url": "https://<REGION>-<PROJECTID>.cloudfunctions.net/hello",
+  "rest.source.url": "https://\<REGION>-\<PROJECTID>.cloudfunctions.net/hello",
     
     gcloud beta functions deploy hello --trigger-http
     
