@@ -50,7 +50,7 @@ You will need gcloud installed and a GCP project with payments enabled.
     mvn clean install
     cd examples/gcf
     
-Replace <REGION> and <PROJECTID> in rest.source.url in config/source.json.
+Replace '\<REGION>' and '\<PROJECTID>' in rest.source.url in config/source.json.
 
   "rest.source.url": "https://<REGION>-<PROJECTID>.cloudfunctions.net/hello",
     
