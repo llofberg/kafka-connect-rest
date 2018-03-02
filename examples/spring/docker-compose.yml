@@ -71,6 +71,6 @@ services:
       CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       CONNECT_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      CONNECT_PLUGIN_PATH: /usr/share/java,/jars
+      CONNECT_PLUGIN_PATH: /jars
     volumes:
       - ../../target/kafka-connect-rest-1.0-SNAPSHOT-package/share/java/kafka-connect-rest:/jars
