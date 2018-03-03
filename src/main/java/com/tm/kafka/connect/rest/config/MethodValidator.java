@@ -14,21 +14,19 @@
  * limitations under the License.
  **/
 
-package com.tm.kafka.connect.rest.selector;
+package com.tm.kafka.connect.rest.config;
 
-import com.tm.kafka.connect.rest.RestSourceConnectorConfig;
+import org.apache.kafka.common.config.ConfigDef;
 
-public class SimpleTopicSelector implements TopicSelector {
-  private String topic;
+import java.util.HashMap;
 
+public class MethodValidator implements ConfigDef.Validator {
   @Override
-  public String getTopic(Object data) {
-    return topic;
+  public void ensureValid(String name, Object provider) {
   }
 
   @Override
-  public void start(RestSourceConnectorConfig config) {
-    // Always return the first topic in the list
-    topic = config.getTopics().get(0);
+  public String toString() {
+    return new MethodRecommender().validValues("", new HashMap<>()).toString();
   }
 }

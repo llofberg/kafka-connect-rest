@@ -1,3 +1,19 @@
+/**
+ * Copyright 2015 Confluent Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **/
+
 package com.tm.kafka.connect.rest;
 
 import com.tm.kafka.connect.rest.converter.BytesPayloadConverter;
@@ -26,7 +42,8 @@ public class RestSinkConnectorConfig extends AbstractConfig {
   private static final String SINK_METHOD_DEFAULT = "POST";
 
   static final String SINK_PROPERTIES_LIST_CONFIG = "rest.sink.properties";
-  private static final String SINK_PROPERTIES_LIST_DOC = "The request properties (headers) for REST sink connector.";
+  private static final String SINK_PROPERTIES_LIST_DOC =
+      "The request properties (headers) for REST sink connector.";
   private static final String SINK_PROPERTIES_LIST_DISPLAY = "Sink properties";
 
   public static final String SINK_URL_CONFIG = "rest.sink.url";
@@ -35,14 +52,14 @@ public class RestSinkConnectorConfig extends AbstractConfig {
 
   static final String SINK_PAYLOAD_CONVERTER_CONFIG = "rest.sink.payload.converter.class";
   private static final Class<? extends SinkRecordToPayloadConverter> PAYLOAD_CONVERTER_DEFAULT =
-    StringPayloadConverter.class;
+      StringPayloadConverter.class;
   private static final String SINK_PAYLOAD_CONVERTER_DOC_CONFIG =
-    "Class to be used to convert messages from SinkRecords to Strings for REST calls";
+      "Class to be used to convert messages from SinkRecords to Strings for REST calls";
   private static final String SINK_PAYLOAD_CONVERTER_DISPLAY_CONFIG = "Payload converter class";
 
   private static final String SINK_RETRY_BACKOFF_CONFIG = "rest.sink.retry.backoff.ms";
   private static final String SINK_RETRY_BACKOFF_DOC =
-    "The retry backoff in milliseconds. This config is used to notify Kafka connect to retry "
+      "The retry backoff in milliseconds. This config is used to notify Kafka connect to retry "
       + "delivering a message batch or performing recovery in case of transient exceptions.";
   private static final long SINK_RETRY_BACKOFF_DEFAULT = 5000L;
   private static final String SINK_RETRY_BACKOFF_DISPLAY = "Retry Backoff (ms)";
@@ -55,7 +72,8 @@ public class RestSinkConnectorConfig extends AbstractConfig {
     try {
       sinkRecordToPayloadConverter = ((Class<? extends SinkRecordToPayloadConverter>)
         getClass(SINK_PAYLOAD_CONVERTER_CONFIG)).getDeclaredConstructor().newInstance();
-    } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException e) {
+    } catch (IllegalAccessException | InstantiationException
+        | InvocationTargetException | NoSuchMethodException e) {
       throw new ConnectException("Invalid class for: " + SINK_PAYLOAD_CONVERTER_CONFIG, e);
     }
     requestProperties = getPropertiesList().stream()
@@ -167,10 +185,11 @@ public class RestSinkConnectorConfig extends AbstractConfig {
     @Override
     public void ensureValid(String name, Object provider) {
       if (provider != null && provider instanceof Class
-        && SinkRecordToPayloadConverter.class.isAssignableFrom((Class<?>) provider)) {
+          && SinkRecordToPayloadConverter.class.isAssignableFrom((Class<?>) provider)) {
         return;
       }
-      throw new ConfigException(name, provider, "Class must extend: " + SinkRecordToPayloadConverter.class);
+      throw new ConfigException(name, provider, "Class must extend: "
+          + SinkRecordToPayloadConverter.class);
     }
 
     @Override

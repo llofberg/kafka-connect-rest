@@ -2,7 +2,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.tm.kafka</groupId>
+  <parent>
+    <groupId>io.confluent</groupId>
+    <artifactId>common</artifactId>
+    <version>4.0.0</version>
+  </parent>
+
   <artifactId>kafka-connect-rest</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
@@ -25,17 +30,11 @@
       <version>${kafka.version}</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>connect-json</artifactId>
-      <version>${kafka.version}</version>
-      <scope>provided</scope>
-    </dependency>
 
     <dependency>
-      <groupId>io.confluent</groupId>
-      <artifactId>kafka-connect-avro-converter</artifactId>
-      <version>${confluent.version}</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>1.15</version>
     </dependency>
 
     <dependency>
@@ -71,33 +70,6 @@
     </dependency>
 
   </dependencies>
-
-  <dependencyManagement>
-    <dependencies>
-
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-cbor</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-
-    </dependencies>
-  </dependencyManagement>
 
   <repositories>
     <repository>

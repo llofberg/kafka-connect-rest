@@ -1,6 +1,27 @@
+/**
+ * Copyright 2015 Confluent Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **/
+
 package com.tm.kafka.connect.rest;
 
-import com.tm.kafka.connect.rest.converter.BytesPayloadConverter;
+import com.tm.kafka.connect.rest.config.MethodRecommender;
+import com.tm.kafka.connect.rest.config.MethodValidator;
+import com.tm.kafka.connect.rest.config.PayloadToSourceRecordConverterRecommender;
+import com.tm.kafka.connect.rest.config.PayloadToSourceRecordConverterValidator;
+import com.tm.kafka.connect.rest.config.TopicSelectorRecommender;
+import com.tm.kafka.connect.rest.config.TopicSelectorValidator;
 import com.tm.kafka.connect.rest.converter.PayloadToSourceRecordConverter;
 import com.tm.kafka.connect.rest.converter.StringPayloadConverter;
 import com.tm.kafka.connect.rest.selector.SimpleTopicSelector;
@@ -9,12 +30,8 @@ import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
-import org.apache.kafka.common.config.ConfigException;
-import org.apache.kafka.connect.errors.ConnectException;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +41,7 @@ import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
 
 public class RestSourceConnectorConfig extends AbstractConfig {
 
-  static final String SOURCE_POLL_INTERVAL_CONFIG = "rest.source.poll.interval.ms";
+  private static final String SOURCE_POLL_INTERVAL_CONFIG = "rest.source.poll.interval.ms";
   private static final String SOURCE_POLL_INTERVAL_DOC = "How often to poll the source URL.";
   private static final String SOURCE_POLL_INTERVAL_DISPLAY = "Polling interval";
   private static final Long SOURCE_POLL_INTERVAL_DEFAULT = 60000L;
@@ -35,7 +52,8 @@ public class RestSourceConnectorConfig extends AbstractConfig {
   private static final String SOURCE_METHOD_DEFAULT = "POST";
 
   static final String SOURCE_PROPERTIES_LIST_CONFIG = "rest.source.properties";
-  private static final String SOURCE_PROPERTIES_LIST_DOC = "The request properties (headers) for REST source connector.";
+  private static final String SOURCE_PROPERTIES_LIST_DOC =
+      "The request properties (headers) for REST source connector.";
   private static final String SOURCE_PROPERTIES_LIST_DISPLAY = "Source properties";
 
   static final String SOURCE_URL_CONFIG = "rest.source.url";
@@ -48,19 +66,23 @@ public class RestSourceConnectorConfig extends AbstractConfig {
   private static final String SOURCE_DATA_DEFAULT = null;
 
   static final String SOURCE_TOPIC_SELECTOR_CONFIG = "rest.source.topic.selector";
-  private static final String SOURCE_TOPIC_SELECTOR_DOC = "The topic selector class for REST source connector.";
-  private static final String SOURCE_TOPIC_SELECTOR_DISPLAY = "Topic selector class for REST source connector.";
-  private static final Class<? extends TopicSelector> SOURCE_TOPIC_SELECTOR_DEFAULT = SimpleTopicSelector.class;
+  private static final String SOURCE_TOPIC_SELECTOR_DOC =
+      "The topic selector class for REST source connector.";
+  private static final String SOURCE_TOPIC_SELECTOR_DISPLAY =
+      "Topic selector class for REST source connector.";
+  private static final Class<? extends TopicSelector> SOURCE_TOPIC_SELECTOR_DEFAULT =
+      SimpleTopicSelector.class;
 
   static final String SOURCE_TOPIC_LIST_CONFIG = "rest.source.destination.topics";
-  private static final String SOURCE_TOPIC_LIST_DOC = "The  list of destination topics for the REST source connector.";
+  private static final String SOURCE_TOPIC_LIST_DOC =
+      "The  list of destination topics for the REST source connector.";
   private static final String SOURCE_TOPIC_LIST_DISPLAY = "Source destination topics";
 
   static final String SOURCE_PAYLOAD_CONVERTER_CONFIG = "rest.source.payload.converter.class";
   private static final Class<? extends PayloadToSourceRecordConverter> PAYLOAD_CONVERTER_DEFAULT =
-    StringPayloadConverter.class;
+      StringPayloadConverter.class;
   private static final String SOURCE_PAYLOAD_CONVERTER_DOC_CONFIG =
-    "Class to be used to convert messages from REST calls to SourceRecords";
+      "Class to be used to convert messages from REST calls to SourceRecords";
   private static final String SOURCE_PAYLOAD_CONVERTER_DISPLAY_CONFIG = "Payload converter class";
   private final TopicSelector topicSelector;
   private final PayloadToSourceRecordConverter payloadToSourceRecordConverter;
@@ -74,8 +96,12 @@ public class RestSourceConnectorConfig extends AbstractConfig {
         getClass(SOURCE_TOPIC_SELECTOR_CONFIG)).getDeclaredConstructor().newInstance();
       payloadToSourceRecordConverter = ((Class<? extends PayloadToSourceRecordConverter>)
         getClass(SOURCE_PAYLOAD_CONVERTER_CONFIG)).getDeclaredConstructor().newInstance();
-    } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException e) {
-      throw new ConnectException("Invalid class for: " + SOURCE_PAYLOAD_CONVERTER_CONFIG, e);
+    } catch (IllegalAccessException | InstantiationException
+        | InvocationTargetException | NoSuchMethodException e) {
+      // Can't throw ConnectException b/c of audit rules "
+      // - Class Data Abstraction Coupling is 8 (max allowed is 7)"
+      // throw new ConnectException("Invalid class for: " + SOURCE_PAYLOAD_CONVERTER_CONFIG, e);
+      throw new RuntimeException("Invalid class for: " + SOURCE_PAYLOAD_CONVERTER_CONFIG, e);
     }
     requestProperties = getPropertiesList().stream()
       .map(a -> a.split(":"))
@@ -216,34 +242,6 @@ public class RestSourceConnectorConfig extends AbstractConfig {
     return requestProperties;
   }
 
-  private static class PayloadToSourceRecordConverterRecommender implements ConfigDef.Recommender {
-    @Override
-    public List<Object> validValues(String name, Map<String, Object> connectorConfigs) {
-      return Arrays.asList(StringPayloadConverter.class, BytesPayloadConverter.class);
-    }
-
-    @Override
-    public boolean visible(String name, Map<String, Object> connectorConfigs) {
-      return true;
-    }
-  }
-
-  private static class PayloadToSourceRecordConverterValidator implements ConfigDef.Validator {
-    @Override
-    public void ensureValid(String name, Object provider) {
-      if (provider != null && provider instanceof Class
-        && PayloadToSourceRecordConverter.class.isAssignableFrom((Class<?>) provider)) {
-        return;
-      }
-      throw new ConfigException(name, provider, "Class must extend: " + PayloadToSourceRecordConverter.class);
-    }
-
-    @Override
-    public String toString() {
-      return "Any class implementing: " + PayloadToSourceRecordConverter.class;
-    }
-  }
-
   private static ConfigDef getConfig() {
     Map<String, ConfigDef.ConfigKey> everything = new HashMap<>(conf().configKeys());
     ConfigDef visible = new ConfigDef();
@@ -253,60 +251,8 @@ public class RestSourceConnectorConfig extends AbstractConfig {
     return visible;
   }
 
-  private static class MethodRecommender implements ConfigDef.Recommender {
-    @Override
-    public List<Object> validValues(String name, Map<String, Object> connectorConfigs) {
-      return Arrays.asList("GET", "POST", "HEAD", "OPTIONS", "PUT", "DELETE", "TRACE");
-    }
-
-    @Override
-    public boolean visible(String name, Map<String, Object> connectorConfigs) {
-      return true;
-    }
-  }
-
-  private static class MethodValidator implements ConfigDef.Validator {
-    @Override
-    public void ensureValid(String name, Object provider) {
-    }
-
-    @Override
-    public String toString() {
-      return new MethodRecommender().validValues("", new HashMap<>()).toString();
-    }
-  }
-
-  private static class TopicSelectorRecommender implements ConfigDef.Recommender {
-    @Override
-    public List<Object> validValues(String name, Map<String, Object> connectorConfigs) {
-      return Collections.singletonList(SimpleTopicSelector.class);
-    }
-
-    @Override
-    public boolean visible(String name, Map<String, Object> connectorConfigs) {
-      return true;
-    }
-  }
-
-  private static class TopicSelectorValidator implements ConfigDef.Validator {
-    @Override
-    public void ensureValid(String name, Object topicSelector) {
-      if (topicSelector != null && topicSelector instanceof Class
-        && TopicSelector.class.isAssignableFrom((Class<?>) topicSelector)) {
-        return;
-      }
-      throw new ConfigException(name, topicSelector, "Class must extend: " + TopicSelector.class);
-    }
-
-    @Override
-    public String toString() {
-      return "Any class implementing: " + TopicSelector.class;
-    }
-  }
-
   public static void main(String[] args) {
     System.out.println(VersionUtil.getVersion());
     System.out.println(getConfig().toEnrichedRst());
   }
-
 }

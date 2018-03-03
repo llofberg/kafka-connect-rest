@@ -14,21 +14,23 @@
  * limitations under the License.
  **/
 
-package com.tm.kafka.connect.rest.selector;
+package com.tm.kafka.connect.rest.config;
 
-import com.tm.kafka.connect.rest.RestSourceConnectorConfig;
+import com.tm.kafka.connect.rest.selector.SimpleTopicSelector;
+import org.apache.kafka.common.config.ConfigDef;
 
-public class SimpleTopicSelector implements TopicSelector {
-  private String topic;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
+public class TopicSelectorRecommender implements ConfigDef.Recommender {
   @Override
-  public String getTopic(Object data) {
-    return topic;
+  public List<Object> validValues(String name, Map<String, Object> connectorConfigs) {
+    return Collections.singletonList(SimpleTopicSelector.class);
   }
 
   @Override
-  public void start(RestSourceConnectorConfig config) {
-    // Always return the first topic in the list
-    topic = config.getTopics().get(0);
+  public boolean visible(String name, Map<String, Object> connectorConfigs) {
+    return true;
   }
 }
