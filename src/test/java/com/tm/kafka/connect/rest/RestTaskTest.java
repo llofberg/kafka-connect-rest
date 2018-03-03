@@ -1,7 +1,6 @@
 package com.tm.kafka.connect.rest;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.record.TimestampType;
 import org.apache.kafka.connect.sink.SinkRecord;
@@ -32,7 +31,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.apache.kafka.connect.data.Schema.STRING_SCHEMA;
 import static org.junit.Assert.assertEquals;
 
-@Slf4j
 public class RestTaskTest {
 
   private static final String CONTENT_TYPE = "Content-Type";
@@ -203,7 +201,7 @@ public class RestTaskTest {
         s.close();
         return localPort;
       } catch (Exception e) {
-        log.error("Failed to get a free PORT", e);
+        throw new RuntimeException("Failed to get a free PORT", e);
       }
     }
   }

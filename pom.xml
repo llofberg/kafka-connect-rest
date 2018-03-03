@@ -2,12 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>io.confluent</groupId>
-    <artifactId>common</artifactId>
-    <version>4.0.0</version>
-  </parent>
-
+  <groupId>com.tm.kafka</groupId>
   <artifactId>kafka-connect-rest</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
@@ -16,6 +11,7 @@
   <description>A Kafka Connect Connector for kafka-connect-rest</description>
 
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <kafka.version>1.0.0</kafka.version>
     <jackson.version>2.9.4</jackson.version>
     <confluent.version>4.0.0</confluent.version>
@@ -38,15 +34,10 @@
     </dependency>
 
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.25</version>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.16.20</version>
-      <scope>provided</scope>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.3</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -84,6 +75,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
         <configuration>
           <archive>
             <manifest>
