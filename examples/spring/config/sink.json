@@ -6,8 +6,9 @@
     "topics": "restSourceDestinationTopic",
     "rest.sink.url": "http://webservice:8080/count",
     "rest.sink.method": "POST",
-    "rest.sink.payload.converter.class": "com.tm.kafka.connect.rest.converter.JacksonPayloadConverter",
-    "rest.sink.properties": "Content-Type:application/json"
+    "rest.sink.payload.converter.class": "com.tm.kafka.connect.rest.converter.VelocityPayloadConverter",
+    "rest.sink.properties": "Content-Type:application/json",
+    "rest.sink.velocity.template": "rest.vm"
   }
 }
 

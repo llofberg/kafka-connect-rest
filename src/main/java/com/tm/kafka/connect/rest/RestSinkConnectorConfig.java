@@ -37,9 +37,9 @@ public class RestSinkConnectorConfig extends AbstractConfig {
   static final String SINK_PAYLOAD_CONVERTER_CONFIG = "rest.sink.payload.converter.class";
   private static final Class<? extends SinkRecordToPayloadConverter> PAYLOAD_CONVERTER_DEFAULT =
       StringPayloadConverter.class;
-  private static final String SINK_PAYLOAD_CONVERTER_DOC_CONFIG =
+  private static final String SINK_PAYLOAD_CONVERTER_DOC =
       "Class to be used to convert messages from SinkRecords to Strings for REST calls";
-  private static final String SINK_PAYLOAD_CONVERTER_DISPLAY_CONFIG = "Payload converter class";
+  private static final String SINK_PAYLOAD_CONVERTER_DISPLAY = "Payload converter class";
 
   private static final String SINK_RETRY_BACKOFF_CONFIG = "rest.sink.retry.backoff.ms";
   private static final String SINK_RETRY_BACKOFF_DOC =
@@ -47,6 +47,13 @@ public class RestSinkConnectorConfig extends AbstractConfig {
       + "delivering a message batch or performing recovery in case of transient exceptions.";
   private static final long SINK_RETRY_BACKOFF_DEFAULT = 5000L;
   private static final String SINK_RETRY_BACKOFF_DISPLAY = "Retry Backoff (ms)";
+
+  private static final String SINK_VELOCITY_TEMPLATE_CONFIG = "rest.sink.velocity.template";
+  private static final String SINK_VELOCITY_TEMPLATE_DOC =
+    "Velocity template file to convert incoming messages to be used in a REST call.";
+  private static final String SINK_VELOCITY_TEMPLATE_DEFAULT = "";
+  private static final String SINK_VELOCITY_TEMPLATE_DISPLAY = "Velocity template";
+
   private final SinkRecordToPayloadConverter sinkRecordToPayloadConverter;
   private final Map<String, String> requestProperties;
 
@@ -110,11 +117,11 @@ public class RestSinkConnectorConfig extends AbstractConfig {
         PAYLOAD_CONVERTER_DEFAULT,
         new PayloadConverterValidator(),
         Importance.LOW,
-        SINK_PAYLOAD_CONVERTER_DOC_CONFIG,
+        SINK_PAYLOAD_CONVERTER_DOC,
         group,
         ++orderInGroup,
         ConfigDef.Width.SHORT,
-        SINK_PAYLOAD_CONVERTER_DISPLAY_CONFIG,
+        SINK_PAYLOAD_CONVERTER_DISPLAY,
         new PayloadConverterRecommender())
 
       .define(SINK_RETRY_BACKOFF_CONFIG,
@@ -126,6 +133,16 @@ public class RestSinkConnectorConfig extends AbstractConfig {
         ++orderInGroup,
         ConfigDef.Width.NONE,
         SINK_RETRY_BACKOFF_DISPLAY)
+
+      .define(SINK_VELOCITY_TEMPLATE_CONFIG,
+        Type.STRING,
+        SINK_VELOCITY_TEMPLATE_DEFAULT,
+        Importance.LOW,
+        SINK_VELOCITY_TEMPLATE_DOC,
+        group,
+        ++orderInGroup,
+        ConfigDef.Width.NONE,
+        SINK_VELOCITY_TEMPLATE_DISPLAY)
       ;
   }
 
