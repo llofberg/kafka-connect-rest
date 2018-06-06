@@ -32,6 +32,7 @@
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <excludes>
         <exclude>org.apache.kafka:connect-api</exclude>
+        <exclude>org.apache.kafka:connect-json</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
