@@ -30,7 +30,7 @@ public class RestSinkConnectorConfig extends AbstractConfig {
       "The request properties (headers) for REST sink connector.";
   private static final String SINK_PROPERTIES_LIST_DISPLAY = "Sink properties";
 
-  public static final String SINK_URL_CONFIG = "rest.sink.url";
+  static final String SINK_URL_CONFIG = "rest.sink.url";
   private static final String SINK_URL_DOC = "The URL for REST sink connector.";
   private static final String SINK_URL_DISPLAY = "URL for REST sink connector.";
 
@@ -41,7 +41,7 @@ public class RestSinkConnectorConfig extends AbstractConfig {
       "Class to be used to convert messages from SinkRecords to Strings for REST calls";
   private static final String SINK_PAYLOAD_CONVERTER_DISPLAY_CONFIG = "Payload converter class";
 
-  static final String SINK_PAYLOAD_CONVERTER_SCHEMA_CONFIG = "rest.sink.payload.converter.schema";
+  private static final String SINK_PAYLOAD_CONVERTER_SCHEMA_CONFIG = "rest.sink.payload.converter.schema";
   private static final String SINK_PAYLOAD_CONVERTER_SCHEMA_DOC = "Include schema in JSON output for JsonPayloadConverter";
   private static final String SINK_PAYLOAD_CONVERTER_SCHEMA_DISPLAY = "Include schema in JSON output (true/false)";
   private static final String SINK_PAYLOAD_CONVERTER_SCHEMA_DEFAULT = "false";

@@ -12,18 +12,16 @@ import java.util.concurrent.atomic.AtomicLong;
 @RestController
 @Slf4j
 public class GreetingController {
-    private static final String template = "Hello, %s! (%d)";
+    private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
-    private long count = 0L;
 
     @RequestMapping("/greeting")
     public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
-        return new Greeting(counter.incrementAndGet(), String.format(template, name, count));
+        return new Greeting(counter.incrementAndGet(), String.format(template, name));
     }
 
     @PostMapping(value = "/count")
-    public void count(@RequestBody Greeting greeting) {
-        log.info("Greeting: '{}'", greeting);
-        this.count = greeting.getId();
+    public void count(@RequestBody Object request) {
+        log.info("Request: '{}'", request);
     }
 }

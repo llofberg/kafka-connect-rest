@@ -12,14 +12,14 @@ services:
 
   zookeeper:
     hostname: zookeeeper
-    image: confluentinc/cp-zookeeper:4.0.0-3
+    image: confluentinc/cp-zookeeper:4.1.1
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       zk_id: "1"
 
   kafka:
     hostname: kafka
-    image: confluentinc/cp-kafka:4.0.0-3
+    image: confluentinc/cp-kafka:4.1.1
     links:
       - zookeeper
     ports:
@@ -31,7 +31,7 @@ services:
 
   schema_registry:
     hostname: schema_registry
-    image: confluentinc/cp-schema-registry:4.0.0-3
+    image: confluentinc/cp-schema-registry:4.1.1
     links:
       - kafka
       - zookeeper
@@ -42,7 +42,7 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
 
   connect:
-    image: confluentinc/cp-kafka-connect:4.0.0-3
+    image: confluentinc/cp-kafka-connect:4.1.1
     hostname: connect
     depends_on:
       - webservice

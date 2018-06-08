@@ -16,7 +16,7 @@ public class JsonPayloadConverter implements SinkRecordToPayloadConverter {
   private JsonConverter converter = new JsonConverter();
 
   @Override
-  public String convert(SinkRecord record) throws Exception {
+  public String convert(SinkRecord record) {
     String topic = record.topic();
     Object value = record.value();
     Schema schema = record.valueSchema();
@@ -30,12 +30,11 @@ public class JsonPayloadConverter implements SinkRecordToPayloadConverter {
     return resultStr;
   }
 
-
   @Override
   public void start(RestSinkConnectorConfig config) {
     Map<String, String> map = new HashMap<>();
     map.put("schemas.enable", config.getIncludeSchema().toString());
-    map.put("converter.type",ConverterType.VALUE.getName());
+    map.put("converter.type", ConverterType.VALUE.getName());
 
     converter.configure(map);
   }
