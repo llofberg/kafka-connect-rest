@@ -42,11 +42,11 @@ public class GreetingControllerTests {
     public void noParamGreetingShouldReturnDefaultMessage() throws Exception {
 
         this.mockMvc.perform(get("/greeting")).andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("Hello, World! (0)"));
+                .andExpect(jsonPath("$.content").value("Hello, World!"));
 
         this.mockMvc.perform(get("/greeting").param("name", "Spring Community"))
                 .andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("Hello, Spring Community! (0)"));
+                .andExpect(jsonPath("$.content").value("Hello, Spring Community!"));
 
         this.mockMvc.perform(post("/count")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -56,6 +56,6 @@ public class GreetingControllerTests {
 
         this.mockMvc.perform(get("/greeting").param("name", "Spring Community"))
                 .andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("Hello, Spring Community! (1)"));
+                .andExpect(jsonPath("$.content").value("Hello, Spring Community!"));
     }
 }

@@ -32,9 +32,19 @@ Building and running Spring example in docker
       --topic restSourceDestinationTopic --from-beginning \
       --property schema.registry.url=http://schema_registry:8081/"
 
-    docker logs -f spring_webservice_1 
+    docker logs -f spring_webservice_1
 
     docker-compose down
+    cd ../..
+
+To try out the Velocity converter replace the sink above with
+
+    curl -X POST \
+       -H 'Host: connect.example.com' \
+       -H 'Accept: application/json' \
+       -H 'Content-Type: application/json' \
+      http://localhost:8083/connectors -d @config/velocity_sink.json
+
 
 Change CONNECT_VALUE_CONVERTER in the docker-compose.yml
 to org.apache.kafka.connect.storage.StringConverter if you don't want to use Avro.
@@ -50,22 +60,22 @@ You will need gcloud installed and a GCP project with payments enabled.
 
     mvn clean install
     cd examples/gcf
-    
+
 Replace '\<REGION>' and '\<PROJECTID>' in rest.source.url in config/source.json.
 
   "rest.source.url": "https://\<REGION>-\<PROJECTID>.cloudfunctions.net/hello",
-    
+
     gcloud beta functions deploy hello --trigger-http
-    
+
     curl -X POST http://https://<REGION>-<PROJECTID>.cloudfunctions.net/hello -d 'name=Kafka Connect'
-    
+
     docker-compose up -d
-    
+
     docker exec -it gcf_connect_1 bash -c \
      "kafka-topics --zookeeper zookeeper \
        --topic restSourceDestinationTopic --create \
        --replication-factor 1 --partitions 1"
-    
+
     curl -X POST \
        -H 'Host: connect.example.com' \
        -H 'Accept: application/json' \

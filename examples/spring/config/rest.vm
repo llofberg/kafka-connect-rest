@@ -1,0 +1,6 @@
+{
+  "topic":"$topic",
+  "id":"$value.id",
+  "content":"$value.content",
+  "converter":"VelocityPayloadConverter"
+}

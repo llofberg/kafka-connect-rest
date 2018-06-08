@@ -74,3 +74,4 @@ services:
       CONNECT_PLUGIN_PATH: /jars
     volumes:
       - ../../target:/jars
+      - ./config:/config

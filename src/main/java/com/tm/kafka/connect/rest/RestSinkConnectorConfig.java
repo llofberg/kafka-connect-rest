@@ -27,7 +27,7 @@ public class RestSinkConnectorConfig extends AbstractConfig {
 
   static final String SINK_PROPERTIES_LIST_CONFIG = "rest.sink.properties";
   private static final String SINK_PROPERTIES_LIST_DOC =
-      "The request properties (headers) for REST sink connector.";
+    "The request properties (headers) for REST sink connector.";
   private static final String SINK_PROPERTIES_LIST_DISPLAY = "Sink properties";
 
   static final String SINK_URL_CONFIG = "rest.sink.url";
@@ -36,9 +36,9 @@ public class RestSinkConnectorConfig extends AbstractConfig {
 
   static final String SINK_PAYLOAD_CONVERTER_CONFIG = "rest.sink.payload.converter.class";
   private static final Class<? extends SinkRecordToPayloadConverter> PAYLOAD_CONVERTER_DEFAULT =
-      StringPayloadConverter.class;
+    StringPayloadConverter.class;
   private static final String SINK_PAYLOAD_CONVERTER_DOC =
-      "Class to be used to convert messages from SinkRecords to Strings for REST calls";
+    "Class to be used to convert messages from SinkRecords to Strings for REST calls";
   private static final String SINK_PAYLOAD_CONVERTER_DISPLAY = "Payload converter class";
 
   private static final String SINK_PAYLOAD_CONVERTER_SCHEMA_CONFIG = "rest.sink.payload.converter.schema";
@@ -48,7 +48,7 @@ public class RestSinkConnectorConfig extends AbstractConfig {
 
   private static final String SINK_RETRY_BACKOFF_CONFIG = "rest.sink.retry.backoff.ms";
   private static final String SINK_RETRY_BACKOFF_DOC =
-      "The retry backoff in milliseconds. This config is used to notify Kafka connect to retry "
+    "The retry backoff in milliseconds. This config is used to notify Kafka connect to retry "
       + "delivering a message batch or performing recovery in case of transient exceptions.";
   private static final long SINK_RETRY_BACKOFF_DEFAULT = 5000L;
   private static final String SINK_RETRY_BACKOFF_DISPLAY = "Retry Backoff (ms)";
@@ -56,7 +56,7 @@ public class RestSinkConnectorConfig extends AbstractConfig {
   private static final String SINK_VELOCITY_TEMPLATE_CONFIG = "rest.sink.velocity.template";
   private static final String SINK_VELOCITY_TEMPLATE_DOC =
     "Velocity template file to convert incoming messages to be used in a REST call.";
-  private static final String SINK_VELOCITY_TEMPLATE_DEFAULT = "";
+  private static final String SINK_VELOCITY_TEMPLATE_DEFAULT = "rest.vm";
   private static final String SINK_VELOCITY_TEMPLATE_DISPLAY = "Velocity template";
 
   private final SinkRecordToPayloadConverter sinkRecordToPayloadConverter;
@@ -69,7 +69,7 @@ public class RestSinkConnectorConfig extends AbstractConfig {
       sinkRecordToPayloadConverter = ((Class<? extends SinkRecordToPayloadConverter>)
         getClass(SINK_PAYLOAD_CONVERTER_CONFIG)).getDeclaredConstructor().newInstance();
     } catch (IllegalAccessException | InstantiationException
-        | InvocationTargetException | NoSuchMethodException e) {
+      | InvocationTargetException | NoSuchMethodException e) {
       throw new ConnectException("Invalid class for: " + SINK_PAYLOAD_CONVERTER_CONFIG, e);
     }
     requestProperties = getPropertiesList().stream()
@@ -132,13 +132,14 @@ public class RestSinkConnectorConfig extends AbstractConfig {
       .define(SINK_PAYLOAD_CONVERTER_SCHEMA_CONFIG,
         Type.BOOLEAN,
         SINK_PAYLOAD_CONVERTER_SCHEMA_DEFAULT,
+        new PayloadConverterSchemaValidator(),
         Importance.LOW,
         SINK_PAYLOAD_CONVERTER_SCHEMA_DOC,
         group,
         ++orderInGroup,
         ConfigDef.Width.SHORT,
         SINK_PAYLOAD_CONVERTER_SCHEMA_DISPLAY
-        )
+      )
 
       .define(SINK_RETRY_BACKOFF_CONFIG,
         Type.LONG,
@@ -178,7 +179,9 @@ public class RestSinkConnectorConfig extends AbstractConfig {
     return this.getLong(SINK_RETRY_BACKOFF_CONFIG);
   }
 
-  public Boolean getIncludeSchema() { return this.getBoolean(SINK_PAYLOAD_CONVERTER_SCHEMA_CONFIG); }
+  public Boolean getIncludeSchema() {
+    return this.getBoolean(SINK_PAYLOAD_CONVERTER_SCHEMA_CONFIG);
+  }
 
   public SinkRecordToPayloadConverter getSinkRecordToPayloadConverter() {
     return sinkRecordToPayloadConverter;
@@ -186,6 +189,10 @@ public class RestSinkConnectorConfig extends AbstractConfig {
 
   public Map<String, String> getRequestProperties() {
     return requestProperties;
+  }
+
+  public String getVelocityTemplate() {
+    return this.getString(SINK_VELOCITY_TEMPLATE_CONFIG);
   }
 
   private static class PayloadConverterRecommender implements ConfigDef.Recommender {
@@ -204,11 +211,11 @@ public class RestSinkConnectorConfig extends AbstractConfig {
     @Override
     public void ensureValid(String name, Object provider) {
       if (provider != null && provider instanceof Class
-          && SinkRecordToPayloadConverter.class.isAssignableFrom((Class<?>) provider)) {
+        && SinkRecordToPayloadConverter.class.isAssignableFrom((Class<?>) provider)) {
         return;
       }
       throw new ConfigException(name, provider, "Class must extend: "
-          + SinkRecordToPayloadConverter.class);
+        + SinkRecordToPayloadConverter.class);
     }
 
     @Override
@@ -232,13 +239,13 @@ public class RestSinkConnectorConfig extends AbstractConfig {
   private static class PayloadConverterSchemaValidator implements ConfigDef.Validator {
     @Override
     public void ensureValid(String name, Object provider) {
-      if (provider instanceof String) {
-        String value = (String) provider;
-        if (value.equals("true") || (value.equals("false"))) {
+      if (provider instanceof Boolean) {
+        Boolean value = (Boolean) provider;
+        if (value.equals(true) || (value.equals(false))) {
           return;
         }
       }
-      throw new ConfigException(name, provider,"Please provide 'true' or 'false");
+      throw new ConfigException(name, provider, "Please provide 'true' or 'false'");
     }
 
     @Override
