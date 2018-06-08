@@ -30,7 +30,7 @@ public class RestSinkConnectorConfig extends AbstractConfig {
       "The request properties (headers) for REST sink connector.";
   private static final String SINK_PROPERTIES_LIST_DISPLAY = "Sink properties";
 
-  public static final String SINK_URL_CONFIG = "rest.sink.url";
+  static final String SINK_URL_CONFIG = "rest.sink.url";
   private static final String SINK_URL_DOC = "The URL for REST sink connector.";
   private static final String SINK_URL_DISPLAY = "URL for REST sink connector.";
 
@@ -40,6 +40,11 @@ public class RestSinkConnectorConfig extends AbstractConfig {
   private static final String SINK_PAYLOAD_CONVERTER_DOC =
       "Class to be used to convert messages from SinkRecords to Strings for REST calls";
   private static final String SINK_PAYLOAD_CONVERTER_DISPLAY = "Payload converter class";
+
+  private static final String SINK_PAYLOAD_CONVERTER_SCHEMA_CONFIG = "rest.sink.payload.converter.schema";
+  private static final String SINK_PAYLOAD_CONVERTER_SCHEMA_DOC = "Include schema in JSON output for JsonPayloadConverter";
+  private static final String SINK_PAYLOAD_CONVERTER_SCHEMA_DISPLAY = "Include schema in JSON output (true/false)";
+  private static final String SINK_PAYLOAD_CONVERTER_SCHEMA_DEFAULT = "false";
 
   private static final String SINK_RETRY_BACKOFF_CONFIG = "rest.sink.retry.backoff.ms";
   private static final String SINK_RETRY_BACKOFF_DOC =
@@ -124,6 +129,17 @@ public class RestSinkConnectorConfig extends AbstractConfig {
         SINK_PAYLOAD_CONVERTER_DISPLAY,
         new PayloadConverterRecommender())
 
+      .define(SINK_PAYLOAD_CONVERTER_SCHEMA_CONFIG,
+        Type.BOOLEAN,
+        SINK_PAYLOAD_CONVERTER_SCHEMA_DEFAULT,
+        Importance.LOW,
+        SINK_PAYLOAD_CONVERTER_SCHEMA_DOC,
+        group,
+        ++orderInGroup,
+        ConfigDef.Width.SHORT,
+        SINK_PAYLOAD_CONVERTER_SCHEMA_DISPLAY
+        )
+
       .define(SINK_RETRY_BACKOFF_CONFIG,
         Type.LONG,
         SINK_RETRY_BACKOFF_DEFAULT,
@@ -162,6 +178,8 @@ public class RestSinkConnectorConfig extends AbstractConfig {
     return this.getLong(SINK_RETRY_BACKOFF_CONFIG);
   }
 
+  public Boolean getIncludeSchema() { return this.getBoolean(SINK_PAYLOAD_CONVERTER_SCHEMA_CONFIG); }
+
   public SinkRecordToPayloadConverter getSinkRecordToPayloadConverter() {
     return sinkRecordToPayloadConverter;
   }
@@ -196,6 +214,36 @@ public class RestSinkConnectorConfig extends AbstractConfig {
     @Override
     public String toString() {
       return "Any class implementing: " + SinkRecordToPayloadConverter.class;
+    }
+  }
+
+  private static class PayloadConverterSchemaRecommender implements ConfigDef.Recommender {
+    @Override
+    public List<Object> validValues(String name, Map<String, Object> connectorConfigs) {
+      return Arrays.asList(Boolean.TRUE.toString(), Boolean.FALSE.toString());
+    }
+
+    @Override
+    public boolean visible(String name, Map<String, Object> connectorConfigs) {
+      return true;
+    }
+  }
+
+  private static class PayloadConverterSchemaValidator implements ConfigDef.Validator {
+    @Override
+    public void ensureValid(String name, Object provider) {
+      if (provider instanceof String) {
+        String value = (String) provider;
+        if (value.equals("true") || (value.equals("false"))) {
+          return;
+        }
+      }
+      throw new ConfigException(name, provider,"Please provide 'true' or 'false");
+    }
+
+    @Override
+    public String toString() {
+      return new PayloadConverterSchemaRecommender().validValues("", new HashMap<>()).toString();
     }
   }
 
