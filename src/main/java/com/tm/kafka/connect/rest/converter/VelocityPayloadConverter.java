@@ -34,9 +34,7 @@ public class VelocityPayloadConverter implements SinkRecordToPayloadConverter {
     context.put("value", mapper.readValue((String) record.value(), Map.class));
 
     template.merge(context, sw);
-
-    String s = sw.toString();
-    return s;
+    return sw.toString();
   }
 
   @Override
