@@ -25,7 +25,7 @@ public class StringPayloadConverter
 
   public String convert(SinkRecord record) {
     if (log.isTraceEnabled()) {
-      log.error("SinkRecord: {}", record.toString());
+      log.trace("SinkRecord: {}", record.toString());
     }
 
     return record.value().toString();

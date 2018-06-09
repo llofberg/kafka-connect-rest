@@ -36,8 +36,6 @@ public class VelocityPayloadConverter implements SinkRecordToPayloadConverter {
     template.merge(context, sw);
 
     String s = sw.toString();
-    log.error("Velocity value: {}", record.value());
-    log.error("Velocity string: {}", s);
     return s;
   }
 
