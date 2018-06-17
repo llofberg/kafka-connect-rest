@@ -7,12 +7,12 @@ import org.apache.kafka.common.config.ConfigException;
 public class PayloadToSourceRecordConverterValidator implements ConfigDef.Validator {
   @Override
   public void ensureValid(String name, Object provider) {
-    if (provider != null && provider instanceof Class
-        && PayloadToSourceRecordConverter.class.isAssignableFrom((Class<?>) provider)) {
+    if (provider instanceof Class
+      && PayloadToSourceRecordConverter.class.isAssignableFrom((Class<?>) provider)) {
       return;
     }
     throw new ConfigException(name, provider, "Class must extend: "
-        + PayloadToSourceRecordConverter.class);
+      + PayloadToSourceRecordConverter.class);
   }
 
   @Override

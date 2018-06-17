@@ -7,6 +7,7 @@ public class RestConnectorConfigTest {
   public void docSource() {
     System.out.println(RestSourceConnectorConfig.conf().toRst());
   }
+
   @Test
   public void docSink() {
     System.out.println(RestSinkConnectorConfig.conf().toRst());

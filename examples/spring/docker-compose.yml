@@ -11,7 +11,7 @@ services:
       - ./gs-rest-service/target:/app
 
   zookeeper:
-    hostname: zookeeeper
+    hostname: zookeeper
     image: confluentinc/cp-zookeeper:4.1.1
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181

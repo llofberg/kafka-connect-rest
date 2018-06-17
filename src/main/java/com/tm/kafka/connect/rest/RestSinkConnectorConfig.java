@@ -163,7 +163,7 @@ public class RestSinkConnectorConfig extends AbstractConfig {
       ;
   }
 
-  public String getMethod() {
+  String getMethod() {
     return this.getString(SINK_METHOD_CONFIG);
   }
 
@@ -175,7 +175,7 @@ public class RestSinkConnectorConfig extends AbstractConfig {
     return this.getString(SINK_URL_CONFIG);
   }
 
-  public Long getRetryBackoff() {
+  Long getRetryBackoff() {
     return this.getLong(SINK_RETRY_BACKOFF_CONFIG);
   }
 
@@ -183,11 +183,11 @@ public class RestSinkConnectorConfig extends AbstractConfig {
     return this.getBoolean(SINK_PAYLOAD_CONVERTER_SCHEMA_CONFIG);
   }
 
-  public SinkRecordToPayloadConverter getSinkRecordToPayloadConverter() {
+  SinkRecordToPayloadConverter getSinkRecordToPayloadConverter() {
     return sinkRecordToPayloadConverter;
   }
 
-  public Map<String, String> getRequestProperties() {
+  Map<String, String> getRequestProperties() {
     return requestProperties;
   }
 
@@ -210,7 +210,7 @@ public class RestSinkConnectorConfig extends AbstractConfig {
   private static class PayloadConverterValidator implements ConfigDef.Validator {
     @Override
     public void ensureValid(String name, Object provider) {
-      if (provider != null && provider instanceof Class
+      if (provider instanceof Class
         && SinkRecordToPayloadConverter.class.isAssignableFrom((Class<?>) provider)) {
         return;
       }
@@ -252,15 +252,6 @@ public class RestSinkConnectorConfig extends AbstractConfig {
     public String toString() {
       return new PayloadConverterSchemaRecommender().validValues("", new HashMap<>()).toString();
     }
-  }
-
-  private static ConfigDef getConfig() {
-    Map<String, ConfigDef.ConfigKey> everything = new HashMap<>(conf().configKeys());
-    ConfigDef visible = new ConfigDef();
-    for (ConfigDef.ConfigKey key : everything.values()) {
-      visible.define(key);
-    }
-    return visible;
   }
 
   private static class MethodRecommender implements ConfigDef.Recommender {

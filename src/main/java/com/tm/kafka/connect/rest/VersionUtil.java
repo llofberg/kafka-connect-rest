@@ -1,10 +1,7 @@
 package com.tm.kafka.connect.rest;
 
-/**
- * Created by jeremy on 5/3/16.
- */
 class VersionUtil {
-  public static String getVersion() {
+  static String getVersion() {
     try {
       return VersionUtil.class.getPackage().getImplementationVersion();
     } catch (Exception ex) {

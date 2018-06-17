@@ -7,8 +7,8 @@ import org.apache.kafka.common.config.ConfigException;
 public class TopicSelectorValidator implements ConfigDef.Validator {
   @Override
   public void ensureValid(String name, Object topicSelector) {
-    if (topicSelector != null && topicSelector instanceof Class
-        && TopicSelector.class.isAssignableFrom((Class<?>) topicSelector)) {
+    if (topicSelector instanceof Class
+      && TopicSelector.class.isAssignableFrom((Class<?>) topicSelector)) {
       return;
     }
     throw new ConfigException(name, topicSelector, "Class must extend: " + TopicSelector.class);

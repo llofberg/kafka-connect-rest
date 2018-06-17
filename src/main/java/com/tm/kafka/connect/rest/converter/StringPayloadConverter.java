@@ -17,7 +17,7 @@ import java.util.Map;
 import static java.lang.System.currentTimeMillis;
 
 public class StringPayloadConverter
-    implements SinkRecordToPayloadConverter, PayloadToSourceRecordConverter {
+  implements SinkRecordToPayloadConverter, PayloadToSourceRecordConverter {
   private Logger log = LoggerFactory.getLogger(StringPayloadConverter.class);
 
   private String url;
@@ -38,7 +38,7 @@ public class StringPayloadConverter
     String topic = topicSelector.getTopic(bytes);
     String value = new String(bytes);
     SourceRecord sourceRecord = new SourceRecord(sourcePartition, sourceOffset, topic,
-        Schema.STRING_SCHEMA, value);
+      Schema.STRING_SCHEMA, value);
     if (log.isTraceEnabled()) {
       log.trace("SourceRecord: {}", sourceRecord);
     }

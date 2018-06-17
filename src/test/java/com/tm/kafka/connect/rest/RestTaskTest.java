@@ -194,15 +194,13 @@ public class RestTaskTest {
   }
 
   private static int getPort() {
-    while (true) {
-      try {
-        ServerSocket s = new ServerSocket(0);
-        int localPort = s.getLocalPort();
-        s.close();
-        return localPort;
-      } catch (Exception e) {
-        throw new RuntimeException("Failed to get a free PORT", e);
-      }
+    try {
+      ServerSocket s = new ServerSocket(0);
+      int localPort = s.getLocalPort();
+      s.close();
+      return localPort;
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to get a free PORT", e);
     }
   }
 

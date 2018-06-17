@@ -38,7 +38,7 @@ public class RestSourceConnectorConfig extends AbstractConfig {
 
   static final String SOURCE_PROPERTIES_LIST_CONFIG = "rest.source.properties";
   private static final String SOURCE_PROPERTIES_LIST_DOC =
-      "The request properties (headers) for REST source connector.";
+    "The request properties (headers) for REST source connector.";
   private static final String SOURCE_PROPERTIES_LIST_DISPLAY = "Source properties";
 
   static final String SOURCE_URL_CONFIG = "rest.source.url";
@@ -52,22 +52,22 @@ public class RestSourceConnectorConfig extends AbstractConfig {
 
   static final String SOURCE_TOPIC_SELECTOR_CONFIG = "rest.source.topic.selector";
   private static final String SOURCE_TOPIC_SELECTOR_DOC =
-      "The topic selector class for REST source connector.";
+    "The topic selector class for REST source connector.";
   private static final String SOURCE_TOPIC_SELECTOR_DISPLAY =
-      "Topic selector class for REST source connector.";
+    "Topic selector class for REST source connector.";
   private static final Class<? extends TopicSelector> SOURCE_TOPIC_SELECTOR_DEFAULT =
-      SimpleTopicSelector.class;
+    SimpleTopicSelector.class;
 
   static final String SOURCE_TOPIC_LIST_CONFIG = "rest.source.destination.topics";
   private static final String SOURCE_TOPIC_LIST_DOC =
-      "The  list of destination topics for the REST source connector.";
+    "The  list of destination topics for the REST source connector.";
   private static final String SOURCE_TOPIC_LIST_DISPLAY = "Source destination topics";
 
   static final String SOURCE_PAYLOAD_CONVERTER_CONFIG = "rest.source.payload.converter.class";
   private static final Class<? extends PayloadToSourceRecordConverter> PAYLOAD_CONVERTER_DEFAULT =
-      StringPayloadConverter.class;
+    StringPayloadConverter.class;
   private static final String SOURCE_PAYLOAD_CONVERTER_DOC_CONFIG =
-      "Class to be used to convert messages from REST calls to SourceRecords";
+    "Class to be used to convert messages from REST calls to SourceRecords";
   private static final String SOURCE_PAYLOAD_CONVERTER_DISPLAY_CONFIG = "Payload converter class";
   private final TopicSelector topicSelector;
   private final PayloadToSourceRecordConverter payloadToSourceRecordConverter;
@@ -82,7 +82,7 @@ public class RestSourceConnectorConfig extends AbstractConfig {
       payloadToSourceRecordConverter = ((Class<? extends PayloadToSourceRecordConverter>)
         getClass(SOURCE_PAYLOAD_CONVERTER_CONFIG)).getDeclaredConstructor().newInstance();
     } catch (IllegalAccessException | InstantiationException
-        | InvocationTargetException | NoSuchMethodException e) {
+      | InvocationTargetException | NoSuchMethodException e) {
       throw new ConnectException("Invalid class for: " + SOURCE_PAYLOAD_CONVERTER_CONFIG, e);
     }
     requestProperties = getPropertiesList().stream()
@@ -188,11 +188,11 @@ public class RestSourceConnectorConfig extends AbstractConfig {
       ;
   }
 
-  public Long getPollInterval() {
+  Long getPollInterval() {
     return this.getLong(SOURCE_POLL_INTERVAL_CONFIG);
   }
 
-  public String getMethod() {
+  String getMethod() {
     return this.getString(SOURCE_METHOD_CONFIG);
   }
 
@@ -216,11 +216,11 @@ public class RestSourceConnectorConfig extends AbstractConfig {
     return this.getString(SOURCE_DATA_CONFIG);
   }
 
-  public PayloadToSourceRecordConverter getPayloadToSourceRecordConverter() {
+  PayloadToSourceRecordConverter getPayloadToSourceRecordConverter() {
     return payloadToSourceRecordConverter;
   }
 
-  public Map<String, String> getRequestProperties() {
+  Map<String, String> getRequestProperties() {
     return requestProperties;
   }
 
