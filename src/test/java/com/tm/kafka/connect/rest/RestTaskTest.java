@@ -1,5 +1,16 @@
 package com.tm.kafka.connect.rest;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.record.TimestampType;
@@ -17,17 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.apache.kafka.connect.data.Schema.STRING_SCHEMA;
 import static org.junit.Assert.assertEquals;
 
@@ -35,7 +35,7 @@ public class RestTaskTest {
 
   private static final String CONTENT_TYPE = "Content-Type";
   private static final String ACCEPT = "Accept";
-  private static final String APPLICATION_JSON = "application/json";
+  private static final String APPLICATION_JSON = "application/json; charset=UTF-8";
 
   private static final String TOPIC = "rest-source-destination-topic";
   private static final String REST_SOURCE_DESTINATION_TOPIC_LIST = TOPIC;
@@ -120,7 +120,7 @@ public class RestTaskTest {
     props = new HashMap<String, String>() {{
       put(RestSinkConnectorConfig.SINK_METHOD_CONFIG, METHOD);
       put(RestSinkConnectorConfig.SINK_URL_CONFIG, URL);
-      put(RestSinkConnectorConfig.SINK_PROPERTIES_LIST_CONFIG, PROPERTIES_LIST);
+      put(RestSinkConnectorConfig.SINK_HEADERS_LIST_CONFIG, PROPERTIES_LIST);
       put(RestSinkConnectorConfig.SINK_PAYLOAD_CONVERTER_CONFIG, STRING_PAYLOAD_CONVERTER);
     }};
     String key = "key1";

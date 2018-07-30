@@ -1,69 +1,97 @@
 package com.tm.kafka.connect.rest;
 
 import com.tm.kafka.connect.rest.converter.SinkRecordToPayloadConverter;
+import com.tm.kafka.connect.rest.http.Request;
+import com.tm.kafka.connect.rest.http.Response;
+import com.tm.kafka.connect.rest.http.executor.RequestExecutor;
+import com.tm.kafka.connect.rest.http.handler.ResponseHandler;
+import com.tm.kafka.connect.rest.http.payload.Payload;
+import com.tm.kafka.connect.rest.http.transformer.RequestTransformer;
+import org.apache.kafka.connect.errors.RetriableException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Map;
 
+import static com.tm.kafka.connect.rest.metrics.Metrics.RETRIABLE_ERROR_METRIC;
+import static com.tm.kafka.connect.rest.metrics.Metrics.UNRETRIABLE_ERROR_METRIC;
+import static com.tm.kafka.connect.rest.metrics.Metrics.increaseCounter;
+
 public class RestSinkTask extends SinkTask {
+
   private static Logger log = LoggerFactory.getLogger(RestSinkTask.class);
 
   private String method;
-  private Map<String, String> requestProperties;
-  private String url;
-  private SinkRecordToPayloadConverter converter;
   private Long retryBackoff;
+  private Integer maxRetries;
+  private SinkRecordToPayloadConverter converter;
+  private Request.RequestFactory requestFactory;
+  private RequestTransformer transformer;
+  private RequestExecutor executor;
+  private ResponseHandler responseHandler;
+  private String taskName = "";
+  private Map<String, String> map;
 
   @Override
   public void start(Map<String, String> map) {
     RestSinkConnectorConfig connectorConfig = new RestSinkConnectorConfig(map);
+    taskName = map.getOrDefault("name", "unknown");
+
+    requestFactory = new Request.RequestFactory(connectorConfig.getUrl(), connectorConfig.getRequestProperties());
+
     retryBackoff = connectorConfig.getRetryBackoff();
+    maxRetries = connectorConfig.getMaxRetries();
+
     method = connectorConfig.getMethod();
-    requestProperties = connectorConfig.getRequestProperties();
-    url = connectorConfig.getUrl();
+
     converter = connectorConfig.getSinkRecordToPayloadConverter();
     converter.start(connectorConfig);
+
+    responseHandler = connectorConfig.getResponseHandler();
+    transformer = connectorConfig.getRequestTransformer();
+    executor = connectorConfig.getRequestExecutor();
   }
 
   @Override
   public void put(Collection<SinkRecord> records) {
     for (SinkRecord record : records) {
-      while (true) {
+      ExecutionContext ctx = ExecutionContext.create(taskName);
+      int retries = maxRetries;
+      while (maxRetries < 0 || retries-- >= 0) {
         try {
-          String data = converter.convert(record);
-          String u = url;
-          if ("GET".equals(method)) {
-            u = u + URLEncoder.encode(data, "UTF-8");
-          }
-          HttpURLConnection conn = (HttpURLConnection) new URL(u).openConnection();
-          requestProperties.forEach(conn::setRequestProperty);
-          conn.setRequestMethod(method);
-          if ("POST".equals(method)) {
-            conn.setDoOutput(true);
-            OutputStream os = conn.getOutputStream();
-            os.write(data.getBytes());
-            os.flush();
-          }
-          int responseCode = conn.getResponseCode();
+          Payload payload = converter.convert(record);
+          Request request = requestFactory.createRequest(payload, method);
+          transformer.transform(request);
+
           if (log.isTraceEnabled()) {
-            log.trace("Response code: {}, Request data: {}", responseCode, data);
+            log.trace("Request to: {}, Offset: {}", request.getUrl(), record.kafkaOffset());
           }
+
+          Response response = executor.execute(request);
+
+          if (log.isTraceEnabled()) {
+            log.trace("Response: {}, Request: {}", response, request);
+          }
+
+          responseHandler.handle(response, ctx);
+
           break;
-        } catch (Exception e) {
+        } catch (RetriableException e) {
           log.error("HTTP call failed", e);
+          increaseCounter(RETRIABLE_ERROR_METRIC, ctx);
           try {
             Thread.sleep(retryBackoff);
+            log.error("Retrying");
           } catch (Exception ignored) {
             // Ignored
           }
+        } catch (Exception e) {
+          log.error("HTTP call execution failed " + e.getMessage(), e);
+          increaseCounter(UNRETRIABLE_ERROR_METRIC, ctx);
+          break;
         }
       }
     }
@@ -77,5 +105,13 @@ public class RestSinkTask extends SinkTask {
   @Override
   public String version() {
     return VersionUtil.getVersion();
+  }
+
+  void setRetryBackoff(long backoff) {
+    this.retryBackoff = backoff;
+  }
+
+  void setMaxRetries(int retries) {
+    this.maxRetries = retries;
   }
 }

@@ -2,48 +2,46 @@ package com.tm.kafka.connect.rest.converter;
 
 import com.tm.kafka.connect.rest.RestSinkConnectorConfig;
 import com.tm.kafka.connect.rest.RestSourceConnectorConfig;
-import com.tm.kafka.connect.rest.selector.TopicSelector;
-import org.apache.kafka.connect.data.Schema;
+import com.tm.kafka.connect.rest.converter.sink.SinkBytesPayloadConverter;
+import com.tm.kafka.connect.rest.converter.source.SourceBytesPayloadConverter;
+import com.tm.kafka.connect.rest.http.payload.StringPayload;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.source.SourceRecord;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import static java.lang.System.currentTimeMillis;
+/**
+ * should be splited into SinkStringPayloadConverter and SourceStringPayloadConverter in future
+ * Please use specific converters in com.tm.kafka.connect.rest.converter.source
+ */
 
+@Deprecated
 public class BytesPayloadConverter
-  implements SinkRecordToPayloadConverter, PayloadToSourceRecordConverter {
+    implements SinkRecordToPayloadConverter, PayloadToSourceRecordConverter {
 
-  private TopicSelector topicSelector;
-  private String url;
+  private SinkBytesPayloadConverter sinkConverter;
+  private SourceBytesPayloadConverter sourceConverter;
 
-  // Convert to String for outgoing REST calls
-  public String convert(SinkRecord record) {
-    return record.value().toString();
+  public BytesPayloadConverter() {
+    sinkConverter = new SinkBytesPayloadConverter();
+    sourceConverter = new SourceBytesPayloadConverter();
   }
 
-  // Just bytes for incoming messages
+  public StringPayload convert(SinkRecord record) {
+    return sinkConverter.convert(record);
+  }
+
   public List<SourceRecord> convert(byte[] bytes) {
-    ArrayList<SourceRecord> records = new ArrayList<>();
-    Map<String, String> sourcePartition = Collections.singletonMap("URL", url);
-    Map<String, Long> sourceOffset = Collections.singletonMap("timestamp", currentTimeMillis());
-    records.add(new SourceRecord(sourcePartition, sourceOffset, topicSelector.getTopic(bytes),
-      Schema.BYTES_SCHEMA, bytes));
-    return records;
+    return sourceConverter.convert(bytes);
   }
 
   @Override
   public void start(RestSourceConnectorConfig config) {
-    url = config.getUrl();
-    topicSelector = config.getTopicSelector();
-    topicSelector.start(config);
+    sourceConverter.start(config);
   }
 
   @Override
   public void start(RestSinkConnectorConfig config) {
-    url = config.getUrl();
+    sinkConverter.start(config);
   }
 }

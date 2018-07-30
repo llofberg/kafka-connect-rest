@@ -1,0 +1,4 @@
+0000000000000000000000000000000000000000 3a32506b65cbc04759fe1960d768f05a3147671e Max.Sakharov <Max.Sakharov@ticketmaster.com> 1523572013 -0700	clone: from https://github.com/llofberg/kafka-connect-rest.git
+3a32506b65cbc04759fe1960d768f05a3147671e b73a19eab4ec0e75264ca77ed88844965c17dba7 Max.Sakharov <Max.Sakharov@ticketmaster.com> 1532762846 -0700	commit: add interpolcation. okhttp client, other enhancements
+b73a19eab4ec0e75264ca77ed88844965c17dba7 3a32506b65cbc04759fe1960d768f05a3147671e Max.Sakharov <Max.Sakharov@ticketmaster.com> 1532762865 -0700	reset: moving to 3a32506b65cbc04759fe1960d768f05a3147671e
+3a32506b65cbc04759fe1960d768f05a3147671e 41e1074f8ac815e35416791882d0f57d8f9ede27 Max.Sakharov <Max.Sakharov@ticketmaster.com> 1532762915 -0700	pull: Fast-forward

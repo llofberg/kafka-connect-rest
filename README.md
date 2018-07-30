@@ -88,3 +88,50 @@ Replace '\<REGION>' and '\<PROJECTID>' in rest.source.url in config/source.json.
       --property schema.registry.url=http://schema_registry:8081/"
 
     docker-compose down
+
+### Sink connector configuration options
+
+Here is list of configuration options for REST Sink connector
+
+```
+rest.sink.method - HTTP method
+rest.sink.headers - comma separated HTTP headers
+rest.sink.url - HTTP URL
+rest.sink.payload.converter.class - should be com.tm.kafka.connect.rest.converter.sink.SinkJSONPayloadConverter most of the time
+rest.sink.payload.replace - String contains comma separated patterns for payload replacements. Interpolation accepted
+rest.sink.payload.remove - String contains comma separated list of payload fields to be removed
+rest.sink.payload.add - String contains comma separated list of fields to be added to the payload. Interpolation accepted
+rest.sink.retry.backoff.ms - The retry backoff in milliseconds. In case of failed HTTP call, connector will sleep rest.sink.retry.backoff.ms and then retry.
+rest.http.connection.connection.timeout - HTTP connection timeout in milliseconds, default is 2000
+rest.http.connection.read.timeout - HTTP read timeout in milliseconds, default is 2000
+rest.http.connection.keep.alive.ms - For how long keep HTTP connection should be keept alive in milliseconds, default is 30000 (5 minutes)
+rest.http.connection.max.idle - How many idle connections per host can be kept opened, default is 5
+rest.http.max.retries - Number of times to retry request in case of failure. Negative means infinite number of retries, default is -1
+rest.http.codes.whitelist - Regex for HTTP codes which are considered as successful. Request will be retried infinitely if response code from the server does not match the regex. Default value is ^[2-4]{1}\\d{1}\\d{1}$
+rest.http.codes.blacklist - Regex for HTTP codes which are considered as unsuccessful. Request will be retried infinitely if response code from the server does match the regex, default is empty string
+rest.http.executor.class - HTTP request executor. Default is OkHttpRequestExecutor
+```
+
+### Source connector configuration options
+
+And here is list of configuration options for REST Source connector
+
+```
+rest.source.poll.interval.ms - The innterval in milliseconds between HTTP calls from source connector to your rest.source.url
+rest.source.method - HTTP method
+rest.source.headers - comma separated HTTP headers
+rest.source.url - HTTP URL
+rest.source.data - Data to be sent with HTTP request (usually POST body)
+rest.source.destination.topics - The list of topics separated by comma. Source connector will push response body from HTTP requeset to these topics
+rest.source.payload.converter.class - should be com.tm.kafka.connect.rest.converter.source.SinkJSONPayloadConverter most of the time
+rest.source.payload.replace - String contains comma separated patterns for payload replacements. Interpolation accepted
+rest.source.payload.remove - String contains comma separated list of payload fields to be removed
+rest.source.payload.add - String contains comma separated list of fields to be added to the payload. Interpolation accepted
+rest.source.topic.selector - Topic selector. Default is com.tm.kafka.connect.rest.selector.SimpleTopicSelector
+rest.http.connection.connection.timeout - HTTP connection timeout in milliseconds, default is 2000
+rest.http.connection.read.timeout - HTTP read timeout in milliseconds, default is 2000
+rest.http.connection.keep.alive.ms - For how long keep HTTP connection should be keept alive in milliseconds, default is 30000 (5 minutes)
+rest.http.connection.max.idle - How many idle connections per host can be kept opened, default is 5
+rest.http.executor.class - HTTP request executor. Default is OkHttpRequestExecutor
+```
+
