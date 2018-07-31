@@ -88,6 +88,45 @@ Replace '\<REGION>' and '\<PROJECTID>' in rest.source.url in config/source.json.
       --property schema.registry.url=http://schema_registry:8081/"
 
     docker-compose down
+    
+    
+### Interpolation and payload modification
+
+It often happens that sink connector request or source connector response requires modifications (headers, payload etc)
+Using interpolation you can inject into HTTP calls different environment variables, or utility features like time or data or uuid etc.
+
+Here is an sample of kafka-connect-rest sink connector configuration with interpolations 
+
+```
+{
+  "name": "PetServiceConnector",
+  "config": {
+    "connector.class": "com.tm.kafka.connect.rest.RestSinkConnector",
+    "rest.sink.payload.converter.class": "com.tm.kafka.connect.rest.converter.sink.SinkJSONPayloadConverter",
+    "tasks.max": "1",
+    "topics": "pets",    
+    "rest.sink.headers": "Content-Type:application/json,Correlation-Id:${payload:correlationId},Server-Name:${env:SERVER_NAME}",
+    "rest.sink.url": "http://pet-service.com/${payload:petName}?api-key=${property:/configs/config.properties:api.key}",
+    "rest.sink.payload.remove": "correlationId,petId",
+    "rest.sink.method": "POST"
+  }
+}
+```
+
+If you take a look at rest.sink.headers and rest.sink.url fields, you can notice things like ${payload.perId}, ${payload.correlationId}, ${property:/configs/config.properties:api.key}. 
+These values will be injected into HTTP call at runtime using payload content, local property files, environment variables etc. 
+
+Things like payload and property in above examples are interpolation sources. Currently there are 4 of them:
+
+payload - means the value will be taken from Kafka message payload (for sink connectors. For source connectors it will be HTTP response)
+property - takes value from properties file in the Kafka Connect filesystem. Useful for sensitive information injection like api-keys, secrets, etc.  
+env - environment variables which live in the Kafka Connect host
+util - utility features, like current timestamp or date (use it like ${util.timestamp} or ${util:date} )
+
+#### Why not kafka connect transformations?
+
+We find it difficult to maintain multiple transformations in the same sink or source configuration. Interpolation is more readable and maintainable. 
+Additionally it would be impossible to maange dynamic HTTP headers using kafka connect transformations.   
 
 ### Sink connector configuration options
 
