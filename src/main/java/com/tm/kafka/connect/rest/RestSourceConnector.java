@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RestSourceConnector extends SourceConnector {
-  private static Logger log = LoggerFactory.getLogger(RestSourceConnector.class);
+
   private RestSourceConnectorConfig config;
 
   @Override

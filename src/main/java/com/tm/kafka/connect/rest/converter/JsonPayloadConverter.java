@@ -1,6 +1,8 @@
 package com.tm.kafka.connect.rest.converter;
 
 import com.tm.kafka.connect.rest.RestSinkConnectorConfig;
+import com.tm.kafka.connect.rest.http.payload.Payload;
+import com.tm.kafka.connect.rest.http.payload.StringPayload;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.sink.SinkRecord;
@@ -16,7 +18,7 @@ public class JsonPayloadConverter implements SinkRecordToPayloadConverter {
   private JsonConverter converter = new JsonConverter();
 
   @Override
-  public String convert(SinkRecord record) {
+  public Payload<String> convert(SinkRecord record) {
     String topic = record.topic();
     Object value = record.value();
     Schema schema = record.valueSchema();
@@ -27,7 +29,7 @@ public class JsonPayloadConverter implements SinkRecordToPayloadConverter {
     if (log.isTraceEnabled()) {
       log.trace(String.format("Record %s -> JSON %s", record.toString(), resultStr));
     }
-    return resultStr;
+    return new StringPayload(resultStr);
   }
 
   @Override

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RestSinkConnector extends SinkConnector {
-  private static Logger log = LoggerFactory.getLogger(RestSinkConnector.class);
+
   private RestSinkConnectorConfig config;
 
   @Override
