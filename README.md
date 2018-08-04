@@ -37,7 +37,13 @@ Building and running Spring example in docker
     docker-compose down
     cd ../..
 
-To try out the Velocity converter replace the sink above with
+**_Note: The transformations in this repository should probably be implemented using 
+Kafka [Converter](https://github.com/apache/kafka/blob/trunk/connect/api/src/main/java/org/apache/kafka/connect/storage/Converter.java)
+and [HeaderConverter](https://github.com/apache/kafka/blob/trunk/connect/api/src/main/java/org/apache/kafka/connect/storage/HeaderConverter.java)
+interfaces. See [JsonConverter](https://github.com/apache/kafka/blob/trunk/connect/json/src/main/java/org/apache/kafka/connect/json/JsonConverter.java)
+for an example. PR's are welcome._**
+
+To try out the Velocity converter replace the sink above with 
 
     curl -X POST \
        -H 'Host: connect.example.com' \
