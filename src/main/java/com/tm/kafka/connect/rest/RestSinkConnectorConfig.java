@@ -160,7 +160,7 @@ public class RestSinkConnectorConfig extends AbstractConfig implements RequestTr
     this(conf(), parsedConfig);
   }
 
-  static ConfigDef conf() {
+  public static ConfigDef conf() {
     String group = "REST";
     int orderInGroup = 0;
     return new ConfigDef()
@@ -400,7 +400,7 @@ public class RestSinkConnectorConfig extends AbstractConfig implements RequestTr
     return this.getBoolean(SINK_PAYLOAD_CONVERTER_SCHEMA_CONFIG);
   }
 
-  SinkRecordToPayloadConverter getSinkRecordToPayloadConverter() {
+  public SinkRecordToPayloadConverter getSinkRecordToPayloadConverter() {
     return sinkRecordToPayloadConverter;
   }
 
