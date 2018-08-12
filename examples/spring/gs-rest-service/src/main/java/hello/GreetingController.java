@@ -1,11 +1,8 @@
 package hello;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -17,11 +14,16 @@ public class GreetingController {
 
     @RequestMapping("/greeting")
     public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
-        return new Greeting(counter.incrementAndGet(), String.format(template, name));
+        long id = counter.incrementAndGet();
+        log.info("Request /greeting: '{}'", id);
+        Greeting greeting = new Greeting();
+        greeting.setId(id);
+        greeting.setContent(String.format(template, name));
+        return greeting;
     }
 
     @PostMapping(value = "/count")
-    public void count(@RequestBody Object request) {
-        log.info("Request: '{}'", request);
+    public void count(@RequestBody Object request, @RequestHeader HttpHeaders headers) {
+        log.info("Request /count: '{}', {}", request, headers);
     }
 }

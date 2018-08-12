@@ -6,8 +6,10 @@
     "topics": "restSourceDestinationTopic",
     "rest.sink.url": "http://webservice:8080/count",
     "rest.sink.method": "POST",
-    "rest.sink.payload.converter.class": "com.tm.kafka.connect.rest.converter.JsonPayloadConverter",
-    "rest.sink.payload.converter.schema": true,
-    "rest.sink.properties": "Content-Type:application/json"
+    "rest.sink.headers": "Content-Type:application/json",
+    "transforms": "velocityEval",
+    "transforms.velocityEval.type": "org.apache.kafka.connect.transforms.VelocityEval$Value",
+    "transforms.velocityEval.template": "{\"id\":$value.id,\"content\":\"$value.content\",\"topic\":\"$topic\",\"timestamp\":$timestamp,\"add1\":\"$k\",\"add2\":\"$l\",\"add3\":\"$n.kk\"}",
+    "transforms.velocityEval.context": "{\"k\":\"v\", \"l\":2, \"n\":{\"kk\":\"vv\"}}"
   }
 }

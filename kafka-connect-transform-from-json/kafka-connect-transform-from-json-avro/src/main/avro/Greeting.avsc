@@ -1,0 +1,13 @@
+{"namespace": "hello",
+ "type": "record",
+ "name": "Greeting",
+ "fields": [
+     {"name": "id"        , "type": ["null", "int"   ], "default": null},
+     {"name": "content"   , "type": ["null", "string"], "default": null},
+     {"name": "topic"     , "type": ["null", "string"], "default": null},
+     {"name": "timestamp" , "type": ["null", "long"  ], "default": null},
+     {"name": "add1"      , "type": ["null", "string"], "default": null},
+     {"name": "add2"      , "type": ["null", "string"], "default": null},
+     {"name": "add3"      , "type": ["null", "string"], "default": null}
+ ]
+}

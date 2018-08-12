@@ -1,14 +1,26 @@
 {
   "name": "RestSourceConnectorSpring",
   "config": {
+    "producer.compression.type": "snappy",
     "connector.class": "com.tm.kafka.connect.rest.RestSourceConnector",
     "tasks.max": "1",
     "rest.source.poll.interval.ms": "10000",
     "rest.source.method": "GET",
     "rest.source.url": "http://webservice:8080/greeting",
-    "rest.source.payload.converter.class": "com.tm.kafka.connect.rest.converter.StringPayloadConverter",
-    "rest.source.properties": "Content-Type:application/json,Accept:application/json",
+    "rest.source.headers": "Content-Type:application/json,Accept:application/json",
     "rest.source.topic.selector": "com.tm.kafka.connect.rest.selector.SimpleTopicSelector",
-    "rest.source.destination.topics": "restSourceDestinationTopic"
+    "rest.source.destination.topics": "restSourceDestinationTopic",
+    "transforms": "addHeaders,fromJson1,velocityEval,fromJson2",
+    "transforms.addHeaders.type": "org.apache.kafka.connect.transforms.AddHeaders",
+    "transforms.addHeaders.headers": "X-test-header-1:Value-1, X-test-header-2:Value-2",
+    "transforms.fromJson1.type": "org.apache.kafka.connect.transforms.FromJson$Value",
+    "transforms.fromJson1.message.jar": "jar:file:///jars/greeting-1.0-SNAPSHOT.jar!/",
+    "transforms.fromJson1.message.class": "hello.Greeting",
+    "transforms.velocityEval.type": "org.apache.kafka.connect.transforms.VelocityEval$Value",
+    "transforms.velocityEval.template": "{\"id\":$value.id,\"content\":\"$value.content\",\"topic\":\"$topic\",\"timestamp\":$timestamp,\"add1\":\"$k\",\"add2\":\"$l\",\"add3\":\"$n.kk\"}",
+    "transforms.velocityEval.context": "{\"k\":\"v\", \"l\":2, \"n\":{\"kk\":\"vv\"}}",
+    "transforms.fromJson2.type": "org.apache.kafka.connect.transforms.FromJson$Value",
+    "transforms.fromJson2.message.jar": "jar:file:///jars/greeting-1.0-SNAPSHOT.jar!/",
+    "transforms.fromJson2.message.class": "hello.Greeting"
   }
 }
