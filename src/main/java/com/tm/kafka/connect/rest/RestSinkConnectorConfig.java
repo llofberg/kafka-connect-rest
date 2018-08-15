@@ -140,7 +140,7 @@ public class RestSinkConnectorConfig extends AbstractConfig implements RequestTr
   private RequestExecutor requestExecutor;
 
   @SuppressWarnings("unchecked")
-  private RestSinkConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
+  protected RestSinkConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
     super(config, parsedConfig);
     try {
       sinkRecordToPayloadConverter = ((Class<? extends SinkRecordToPayloadConverter>)

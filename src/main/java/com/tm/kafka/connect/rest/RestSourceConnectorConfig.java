@@ -122,7 +122,7 @@ public class RestSourceConnectorConfig extends AbstractConfig implements Request
   private RequestExecutor requestExecutor;
 
   @SuppressWarnings("unchecked")
-  private RestSourceConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
+  protected RestSourceConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
     super(config, parsedConfig);
     try {
       topicSelector = ((Class<? extends TopicSelector>)
@@ -145,7 +145,7 @@ public class RestSourceConnectorConfig extends AbstractConfig implements Request
     this(conf(), parsedConfig);
   }
 
-  static ConfigDef conf() {
+  public static ConfigDef conf() {
     String group = "REST";
     int orderInGroup = 0;
     return new ConfigDef()
