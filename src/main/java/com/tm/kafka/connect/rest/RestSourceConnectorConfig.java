@@ -116,6 +116,11 @@ public class RestSourceConnectorConfig extends AbstractConfig implements Request
   private static final String SOURCE_REQUEST_EXECUTOR_DOC = "HTTP request executor. Default is OkHttpRequestExecutor";
   private static final String SOURCE_REQUEST_EXECUTOR_DEFAULT = "com.tm.kafka.connect.rest.http.executor.OkHttpRequestExecutor";
 
+  static final String SOURCE_DATE_FORMAT_CONFIG = "rest.http.date.format";
+  private static final String SOURCE_DATE_FORMAT_DISPLAY = "Date format for interpolation";
+  private static final String SOURCE_DATE_FORMAT_DOC = "Date format for interpolation. The default is MM-dd-yyyy HH:mm:ss.SSS";
+  private static final String SOURCE_DATE_FORMAT_DEFAULT = "MM-dd-yyyy HH:mm:ss.SSS";
+
   private final TopicSelector topicSelector;
   private final PayloadToSourceRecordConverter payloadToSourceRecordConverter;
   private final Map<String, String> requestProperties;
@@ -324,13 +329,23 @@ public class RestSourceConnectorConfig extends AbstractConfig implements Request
         ++orderInGroup,
         ConfigDef.Width.NONE,
         SOURCE_REQUEST_EXECUTOR_DISPLAY)
+
+      .define(SOURCE_DATE_FORMAT_CONFIG,
+        Type.STRING,
+        SOURCE_DATE_FORMAT_DEFAULT,
+        Importance.LOW,
+        SOURCE_DATE_FORMAT_DOC,
+        group,
+        ++orderInGroup,
+        ConfigDef.Width.NONE,
+        SOURCE_DATE_FORMAT_DISPLAY)
       ;
   }
 
   public Interpolator getInterpolator() {
     return new DefaultInterpolator(Arrays.asList(
       new EnvironmentVariableInterpolationSource(),
-      new UtilInterpolationSource(),
+      new UtilInterpolationSource(this.getString(SOURCE_DATE_FORMAT_CONFIG)),
       new PayloadInterpolationSource(),
       new PropertyInterpolationSource()
     ));

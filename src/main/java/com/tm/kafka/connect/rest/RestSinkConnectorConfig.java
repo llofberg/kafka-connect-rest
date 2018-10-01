@@ -133,6 +133,11 @@ public class RestSinkConnectorConfig extends AbstractConfig implements RequestTr
   private static final String SINK_VELOCITY_TEMPLATE_DEFAULT = "rest.vm";
   private static final String SINK_VELOCITY_TEMPLATE_DISPLAY = "Velocity template";
 
+  static final String SINK_DATE_FORMAT_CONFIG = "rest.http.date.format";
+  private static final String SINK_DATE_FORMAT_DISPLAY = "Date format for interpolation";
+  private static final String SINK_DATE_FORMAT_DOC = "Date format for interpolation. The default is MM-dd-yyyy HH:mm:ss.SSS";
+  private static final String SINK_DATE_FORMAT_DEFAULT = "MM-dd-yyyy HH:mm:ss.SSS";
+
   private static final long SINK_RETRY_BACKOFF_DEFAULT = 5000L;
 
   private final SinkRecordToPayloadConverter sinkRecordToPayloadConverter;
@@ -359,13 +364,23 @@ public class RestSinkConnectorConfig extends AbstractConfig implements RequestTr
         ++orderInGroup,
         ConfigDef.Width.NONE,
         SINK_VELOCITY_TEMPLATE_DISPLAY)
+
+      .define(SINK_DATE_FORMAT_CONFIG,
+        Type.STRING,
+        SINK_DATE_FORMAT_DEFAULT,
+        Importance.LOW,
+        SINK_DATE_FORMAT_DOC,
+        group,
+        ++orderInGroup,
+        ConfigDef.Width.NONE,
+        SINK_DATE_FORMAT_DISPLAY)
       ;
   }
 
   public Interpolator getInterpolator() {
     return new DefaultInterpolator(Arrays.asList(
       new EnvironmentVariableInterpolationSource(),
-      new UtilInterpolationSource(),
+      new UtilInterpolationSource(this.getString(SINK_DATE_FORMAT_CONFIG)),
       new PayloadInterpolationSource(),
       new PropertyInterpolationSource()
     ));
