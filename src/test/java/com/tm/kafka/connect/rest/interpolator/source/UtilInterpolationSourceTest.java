@@ -18,7 +18,7 @@ public class UtilInterpolationSourceTest {
 
   @Before
   public void setUp() {
-    subject = new UtilInterpolationSource();
+    subject = new UtilInterpolationSource("MM-dd-yyyy HH:mm:ss.SSS");
   }
 
   @Test
