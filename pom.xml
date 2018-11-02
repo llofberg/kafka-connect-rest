@@ -21,7 +21,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <kafka.version>2.0.0</kafka.version>
     <jackson.version>2.9.7</jackson.version>
-    <confluent.version>5.0.0</confluent.version>
+    <confluent.version>5.0.1</confluent.version>
     <confluent.maven.repo>http://packages.confluent.io/maven/</confluent.maven.repo>
     <powermock.version>1.7.4</powermock.version>
     <metrics.version>4.0.0</metrics.version>
@@ -130,6 +130,12 @@
         <artifactId>mockito-core</artifactId>
         <version>1.10.19</version>
         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>1.18</version>
       </dependency>
 
       <dependency>
