@@ -11,6 +11,11 @@ import java.util.Date;
 public class UtilInterpolationSource implements InterpolationSource {
 
   private static Logger log = LoggerFactory.getLogger(UtilInterpolationSource.class);
+  private String dateFormat;
+
+  public UtilInterpolationSource(String dateFormat) {
+    this.dateFormat = dateFormat;
+  }
 
   enum UtilType {
     timestamp, date
@@ -28,7 +33,7 @@ public class UtilInterpolationSource implements InterpolationSource {
 
     switch (type) {
       case timestamp: return Util.getCurrentTimestamp();
-      case date:      return Util.getDate();
+      case date:      return Util.getDate(this.dateFormat);
       default:        return "";
     }
 
@@ -45,10 +50,11 @@ public class UtilInterpolationSource implements InterpolationSource {
 
   public static class Util {
 
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss.SSS");
+    //private static final DateFormat DATE_FORMAT = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss.SSS");
 
-    static String getDate() {
-      return DATE_FORMAT.format(new Date());
+    static String getDate(String dateFormat) {
+      return new SimpleDateFormat(dateFormat).format(new Date());
+      //return DATE_FORMAT.format(new Date());
     }
 
     static String getCurrentTimestamp() {
