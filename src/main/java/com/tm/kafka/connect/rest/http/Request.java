@@ -39,8 +39,16 @@ public class Request {
     return headers;
   }
 
+  public void setHeaders(Map<String, String> headers) {
+    this.headers = headers;
+  }
+
   public String getMethod() {
     return method;
+  }
+
+  public void setMethod(String method) {
+    this.method = method;
   }
 
   public String toString() {
