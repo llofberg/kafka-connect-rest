@@ -86,7 +86,7 @@ public class RestTaskTest {
     List<SourceRecord> messages;
 
     sourceTask = new RestSourceTask();
-    sourceTask.initialize(() -> null);
+    sourceTask.initialize(null);
     sourceTask.start(props);
     messages = sourceTask.poll();
 
@@ -102,7 +102,7 @@ public class RestTaskTest {
     props.put(RestSourceConnectorConfig.SOURCE_PAYLOAD_CONVERTER_CONFIG, BYTES_PAYLOAD_CONVERTER);
 
     sourceTask = new RestSourceTask();
-    sourceTask.initialize(() -> null);
+    sourceTask.initialize(null);
     sourceTask.start(props);
     messages = sourceTask.poll();
 
@@ -214,6 +214,11 @@ public class RestTaskTest {
       this.offsets = new HashMap<>();
       this.timeoutMs = -1L;
       this.assignment = assignment;
+    }
+
+    @Override
+    public Map<String, String> configs() {
+      return null;
     }
 
     @Override
