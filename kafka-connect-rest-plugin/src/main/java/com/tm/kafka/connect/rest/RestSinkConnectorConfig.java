@@ -78,13 +78,19 @@ public class RestSinkConnectorConfig extends AbstractConfig implements HttpPrope
     "The retry backoff in milliseconds. This config is used to notify Kafka connect to retry "
       + "delivering a message batch or performing recovery in case of transient exceptions.";
   private static final String SINK_RETRY_BACKOFF_DISPLAY = "Retry Backoff (ms)";
+
+  private static final String SINK_DATE_FORMAT_CONFIG = "rest.http.date.format";
+  private static final String SINK_DATE_FORMAT_DISPLAY = "Date format for interpolation";
+  private static final String SINK_DATE_FORMAT_DOC = "Date format for interpolation. The default is MM-dd-yyyy HH:mm:ss.SSS";
+  private static final String SINK_DATE_FORMAT_DEFAULT = "MM-dd-yyyy HH:mm:ss.SSS";
+
   private static final long SINK_RETRY_BACKOFF_DEFAULT = 5000L;
 
   private final Map<String, String> requestProperties;
   private RequestExecutor requestExecutor;
 
   @SuppressWarnings("unchecked")
-  private RestSinkConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
+  protected RestSinkConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
     super(config, parsedConfig);
     try {
       requestExecutor = (RequestExecutor)
@@ -226,7 +232,18 @@ public class RestSinkConnectorConfig extends AbstractConfig implements HttpPrope
         group,
         ++orderInGroup,
         ConfigDef.Width.NONE,
-        SINK_REQUEST_EXECUTOR_DISPLAY);
+        SINK_REQUEST_EXECUTOR_DISPLAY)
+
+      .define(SINK_DATE_FORMAT_CONFIG,
+        Type.STRING,
+        SINK_DATE_FORMAT_DEFAULT,
+        Importance.LOW,
+        SINK_DATE_FORMAT_DOC,
+        group,
+        ++orderInGroup,
+        ConfigDef.Width.NONE,
+        SINK_DATE_FORMAT_DISPLAY)
+      ;
   }
 
   public String getMethod() {

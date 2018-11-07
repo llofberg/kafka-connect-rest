@@ -52,37 +52,42 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
   private static final String SOURCE_TOPIC_LIST_DOC = "The list of destination topics for the REST source connector.";
   private static final String SOURCE_TOPIC_LIST_DISPLAY = "Source destination topics";
 
-  static final String SOURCE_HTTP_CONNECTION_TIMEOUT_CONFIG = "rest.http.connection.connection.timeout";
+  private static final String SOURCE_HTTP_CONNECTION_TIMEOUT_CONFIG = "rest.http.connection.connection.timeout";
   private static final String SOURCE_HTTP_CONNECTION_TIMEOUT_DISPLAY = "HTTP connection timeout in milliseconds";
   private static final String SOURCE_HTTP_CONNECTION_TIMEOUT_DOC = "HTTP connection timeout in milliseconds";
   private static final long SOURCE_HTTP_CONNECTION_TIMEOUT_DEFAULT = 2000;
 
-  static final String SOURCE_HTTP_READ_TIMEOUT_CONFIG = "rest.http.connection.read.timeout";
+  private static final String SOURCE_HTTP_READ_TIMEOUT_CONFIG = "rest.http.connection.read.timeout";
   private static final String SOURCE_HTTP_READ_TIMEOUT_DISPLAY = "HTTP read timeout in milliseconds";
   private static final String SOURCE_HTTP_READ_TIMEOUT_DOC = "HTTP read timeout in milliseconds";
   private static final long SOURCE_HTTP_READ_TIMEOUT_DEFAULT = 2000;
 
-  static final String SOURCE_HTTP_KEEP_ALIVE_DURATION_CONFIG = "rest.http.connection.keep.alive.ms";
+  private static final String SOURCE_HTTP_KEEP_ALIVE_DURATION_CONFIG = "rest.http.connection.keep.alive.ms";
   private static final String SOURCE_HTTP_KEEP_ALIVE_DURATION_DISPLAY = "Keep alive in milliseconds";
   private static final String SOURCE_HTTP_KEEP_ALIVE_DURATION_DOC = "For how long keep HTTP connection should be keept alive in milliseconds";
   private static final long SOURCE_HTTP_KEEP_ALIVE_DURATION_DEFAULT = 300000; // 5 minutes
 
-  static final String SOURCE_HTTP_MAX_IDLE_CONNECTION_CONFIG = "rest.http.connection.max.idle";
+  private static final String SOURCE_HTTP_MAX_IDLE_CONNECTION_CONFIG = "rest.http.connection.max.idle";
   private static final String SOURCE_HTTP_MAX_IDLE_CONNECTION_DISPLAY = "Number of idle connections";
   private static final String SOURCE_HTTP_MAX_IDLE_CONNECTION_DOC = "How many idle connections per host can be keept opened";
   private static final int SOURCE_HTTP_MAX_IDLE_CONNECTION_DEFAULT = 5;
 
-  static final String SOURCE_REQUEST_EXECUTOR_CONFIG = "rest.http.executor.class";
+  private static final String SOURCE_REQUEST_EXECUTOR_CONFIG = "rest.http.executor.class";
   private static final String SOURCE_REQUEST_EXECUTOR_DISPLAY = "HTTP request executor";
   private static final String SOURCE_REQUEST_EXECUTOR_DOC = "HTTP request executor. Default is OkHttpRequestExecutor";
   private static final String SOURCE_REQUEST_EXECUTOR_DEFAULT = "com.tm.kafka.connect.rest.http.executor.OkHttpRequestExecutor";
 
-  private final TopicSelector topicSelector;
+  private static final String SOURCE_DATE_FORMAT_CONFIG = "rest.http.date.format";
+  private static final String SOURCE_DATE_FORMAT_DISPLAY = "Date format for interpolation";
+  private static final String SOURCE_DATE_FORMAT_DOC = "Date format for interpolation. The default is MM-dd-yyyy HH:mm:ss.SSS";
+  private static final String SOURCE_DATE_FORMAT_DEFAULT = "MM-dd-yyyy HH:mm:ss.SSS";
+
+    private final TopicSelector topicSelector;
   private final Map<String, String> requestProperties;
   private RequestExecutor requestExecutor;
 
   @SuppressWarnings("unchecked")
-  private RestSourceConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
+  protected RestSourceConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
     super(config, parsedConfig);
     try {
       topicSelector = ((Class<? extends TopicSelector>)
@@ -103,7 +108,7 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
     this(conf(), parsedConfig);
   }
 
-  static ConfigDef conf() {
+  public static ConfigDef conf() {
     String group = "REST";
     int orderInGroup = 0;
     return new ConfigDef()
@@ -230,6 +235,16 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
         ++orderInGroup,
         ConfigDef.Width.NONE,
         SOURCE_REQUEST_EXECUTOR_DISPLAY)
+
+      .define(SOURCE_DATE_FORMAT_CONFIG,
+        Type.STRING,
+        SOURCE_DATE_FORMAT_DEFAULT,
+        Importance.LOW,
+        SOURCE_DATE_FORMAT_DOC,
+        group,
+        ++orderInGroup,
+        ConfigDef.Width.NONE,
+        SOURCE_DATE_FORMAT_DISPLAY)
       ;
   }
 
