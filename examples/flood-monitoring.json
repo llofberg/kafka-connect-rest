@@ -1,0 +1,18 @@
+// See https://environment.data.gov.uk/flood-monitoring/doc/reference
+
+{
+  "name": "source_rest_flood-monitoring-L2404",
+  "config": {
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "connector.class": "com.tm.kafka.connect.rest.RestSourceConnector",
+    "tasks.max": "1",
+    "rest.source.poll.interval.ms": "900000",
+    "rest.source.method": "GET",
+    "rest.source.url": "http://environment.data.gov.uk/flood-monitoring/id/stations/L2404",
+    "rest.source.payload.converter.class": "com.tm.kafka.connect.rest.converter.StringPayloadConverter",
+    "rest.source.properties": "Content-Type:application/json,Accept::application/json",
+    "rest.source.topic.selector": "com.tm.kafka.connect.rest.selector.SimpleTopicSelector",
+    "rest.source.destination.topics": "flood-monitoring-L2404"
+  }
+}
