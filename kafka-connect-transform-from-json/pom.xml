@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.tm.kafka</groupId>
     <artifactId>kafka-connect-rest</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
   </parent>
 
   <packaging>pom</packaging>
