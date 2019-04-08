@@ -9,6 +9,13 @@ public class Response {
   private String payload;
   private Map<String, List<String>> headers;
 
+
+  public Response(int statusCode, Map<String, List<String>> headers, String payload) {
+    this.statusCode = statusCode;
+    this.headers = headers;
+    this.payload = payload;
+  }
+
   public String getPayload() {
     return payload;
   }
@@ -19,14 +26,6 @@ public class Response {
 
   public int getStatusCode() {
     return statusCode;
-  }
-
-  public static Response create(int statusCode, Map<String, List<String>> headers, String payload) {
-    Response response = new Response();
-    response.statusCode = statusCode;
-    response.headers = headers;
-    response.payload = payload;
-    return response;
   }
 
   public String toString() {

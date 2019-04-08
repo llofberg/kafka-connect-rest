@@ -41,7 +41,7 @@ public class RestSinkTaskTest {
 
   @Before
   public void setUp() throws Exception {
-    when(requestFactory.createRequest(any(), any())).thenReturn(mock(Request.class));
+    when(requestFactory.createRequest(any())).thenReturn(mock(Request.class));
     when(executor.execute(any())).thenReturn(mock(Response.class));
   }
 

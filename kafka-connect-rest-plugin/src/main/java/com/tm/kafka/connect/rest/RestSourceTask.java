@@ -26,7 +26,6 @@ public class RestSourceTask extends SourceTask {
   private static Logger log = LoggerFactory.getLogger(RestSourceTask.class);
 
   private Long pollInterval;
-  private String method;
   private String data;
 
   private Long lastPollTime = 0L;
@@ -44,10 +43,10 @@ public class RestSourceTask extends SourceTask {
     taskName = map.getOrDefault("name", "unknown");
 
     pollInterval = connectorConfig.getPollInterval();
-    method = connectorConfig.getMethod();
     data = connectorConfig.getData();
     url = connectorConfig.getUrl();
-    requestFactory = new Request.RequestFactory(connectorConfig.getUrl(), connectorConfig.getRequestProperties());
+    requestFactory = new Request.RequestFactory(url, connectorConfig.getMethod(),
+      connectorConfig.getRequestProperties());
     responseHandler = connectorConfig.getResponseHandler();
     executor = connectorConfig.getRequestExecutor();
     topicSelector = connectorConfig.getTopicSelector();
@@ -65,7 +64,7 @@ public class RestSourceTask extends SourceTask {
 
     try {
 
-      Request request = requestFactory.createRequest(data, method);
+      Request request = requestFactory.createRequest(data);
 
       if (log.isTraceEnabled()) {
         log.trace("{} request to: {} with payload: {}", request.getMethod(), request.getUrl(), request.getPayload());
@@ -79,8 +78,9 @@ public class RestSourceTask extends SourceTask {
       ArrayList<SourceRecord> records = new ArrayList<>();
       Map<String, String> sourcePartition = Collections.singletonMap("URL", url);
       Map<String, Long> sourceOffset = Collections.singletonMap("timestamp", currentTimeMillis());
-      for (String string : responseHandler.handle(response, ctx)) {
-        SourceRecord sourceRecord = new SourceRecord(sourcePartition, sourceOffset, topicSelector.getTopic(string), Schema.STRING_SCHEMA, string);
+      for (String responseRecord : responseHandler.handle(response, ctx)) {
+        SourceRecord sourceRecord = new SourceRecord(sourcePartition, sourceOffset,
+          topicSelector.getTopic(responseRecord), Schema.STRING_SCHEMA, responseRecord);
         for (Map.Entry<String, List<String>> header : response.getHeaders().entrySet()) {
           sourceRecord.headers().add(header.getKey(), header.getValue(), SchemaBuilder.array(Schema.STRING_SCHEMA).build());
         }
