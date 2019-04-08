@@ -2,7 +2,7 @@ package com.tm.kafka.connect.rest.config;
 
 import org.apache.kafka.common.config.ConfigDef;
 
-import java.util.HashMap;
+import java.util.Collections;
 
 public class MethodValidator implements ConfigDef.Validator {
   @Override
@@ -11,6 +11,6 @@ public class MethodValidator implements ConfigDef.Validator {
 
   @Override
   public String toString() {
-    return new MethodRecommender().validValues("", new HashMap<>()).toString();
+    return new MethodRecommender().validValues("", Collections.emptyMap()).toString();
   }
 }

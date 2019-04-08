@@ -82,7 +82,7 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
   private static final String SOURCE_DATE_FORMAT_DOC = "Date format for interpolation. The default is MM-dd-yyyy HH:mm:ss.SSS";
   private static final String SOURCE_DATE_FORMAT_DEFAULT = "MM-dd-yyyy HH:mm:ss.SSS";
 
-    private final TopicSelector topicSelector;
+  private final TopicSelector topicSelector;
   private final Map<String, String> requestProperties;
   private RequestExecutor requestExecutor;
 
