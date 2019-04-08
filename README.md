@@ -8,10 +8,10 @@ Building and running Spring example in docker
     cd examples/spring/gs-rest-service && \
     mvn clean install && \
     cd .. && \
-    cp ../../kafka-connect-rest-plugin/target/kafka-connect-rest-plugin-1.0-shaded.jar jars/ && \
-    cp ../../kafka-connect-transform-from-json/kafka-connect-transform-from-json-plugin/target/kafka-connect-transform-from-json-plugin-1.0-shaded.jar jars/ && \
-    cp ../../kafka-connect-transform-add-headers/target/kafka-connect-transform-add-headers-1.0-shaded.jar jars/ && \
-    cp ../../kafka-connect-transform-velocity-eval/target/kafka-connect-transform-velocity-eval-1.0-shaded.jar jars/ && \
+    cp ../../kafka-connect-rest-plugin/target/kafka-connect-rest-plugin-*-shaded.jar jars/ && \
+    cp ../../kafka-connect-transform-from-json/kafka-connect-transform-from-json-plugin/target/kafka-connect-transform-from-json-plugin-*-shaded.jar jars/ && \
+    cp ../../kafka-connect-transform-add-headers/target/kafka-connect-transform-add-headers-*-shaded.jar jars/ && \
+    cp ../../kafka-connect-transform-velocity-eval/target/kafka-connect-transform-velocity-eval-*-shaded.jar jars/ && \
     docker-compose up -d
 
     docker exec -it spring_connect_1 bash -c \
