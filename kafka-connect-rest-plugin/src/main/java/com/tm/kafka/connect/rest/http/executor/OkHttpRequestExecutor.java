@@ -1,5 +1,6 @@
 package com.tm.kafka.connect.rest.http.executor;
 
+
 import com.tm.kafka.connect.rest.config.HttpProperties;
 import okhttp3.*;
 import org.apache.kafka.connect.errors.RetriableException;
@@ -12,6 +13,7 @@ import java.net.URLEncoder;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+
 
 public class OkHttpRequestExecutor implements RequestExecutor {
 
@@ -48,7 +50,7 @@ public class OkHttpRequestExecutor implements RequestExecutor {
 
     try (okhttp3.Response okResponse = client.newCall(okRequest).execute()) {
 
-      return com.tm.kafka.connect.rest.http.Response.create(
+      return new com.tm.kafka.connect.rest.http.Response(
         okResponse.code(),
         okResponse.headers().toMultimap(),
         okResponse.body() != null ? okResponse.body().string() : null
