@@ -32,6 +32,7 @@ public class RestSourceConnectorConfigTest {
 
     props.put("rest.source.payload.converter.class", "com.tm.kafka.connect.rest.converter.source.SourceBytesPayloadConverter");
     props.put("rest.source.topic.selector", "com.tm.kafka.connect.rest.selector.SimpleTopicSelector");
+    props.put("rest.source.data.generator", "com.tm.kafka.connect.rest.http.payload.ConstantPayloadGenerator");
     props.put("rest.http.executor.class", "com.tm.kafka.connect.rest.http.executor.OkHttpRequestExecutor");
 
     RestSourceConnectorConfig config = new RestSourceConnectorConfig(props);
