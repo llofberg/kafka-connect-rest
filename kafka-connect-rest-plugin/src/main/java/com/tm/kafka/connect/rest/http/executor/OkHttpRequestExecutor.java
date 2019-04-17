@@ -2,7 +2,11 @@ package com.tm.kafka.connect.rest.http.executor;
 
 
 import com.tm.kafka.connect.rest.config.HttpProperties;
-import okhttp3.*;
+import okhttp3.ConnectionPool;
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import org.apache.kafka.connect.errors.RetriableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

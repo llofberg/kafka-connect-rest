@@ -50,7 +50,7 @@ public class StringToMapTest {
     StringToMap.remove("test.foo.bar", map);
 
     Map<String, Object> level2Expected = new HashMap<>();
-    level2Expected.put("foo",  new HashMap<>());
+    level2Expected.put("foo", new HashMap<>());
     Map<String, Object> mapExpected = new HashMap<>();
     mapExpected.put("test", level2Expected);
 

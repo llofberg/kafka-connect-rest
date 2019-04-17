@@ -4,7 +4,7 @@
 
   <groupId>com.tm.kafka</groupId>
   <artifactId>kafka-connect-rest</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -103,7 +103,7 @@
       <dependency>
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
-        <version>3.14.0</version>
+        <version>3.14.1</version>
       </dependency>
 
       <dependency>
@@ -141,7 +141,7 @@
       <dependency>
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock</artifactId>
-        <version>2.22.0</version>
+        <version>2.23.2</version>
         <scope>test</scope>
       </dependency>
 
@@ -280,6 +280,27 @@
                     </limit>
                   </limits>
                 </rule>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.0.0-M2</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>3.0.5</version>
+                </requireMavenVersion>
               </rules>
             </configuration>
           </execution>

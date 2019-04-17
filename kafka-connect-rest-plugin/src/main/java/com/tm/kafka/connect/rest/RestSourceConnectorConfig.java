@@ -1,9 +1,16 @@
 package com.tm.kafka.connect.rest;
 
-import com.tm.kafka.connect.rest.config.*;
+import com.tm.kafka.connect.rest.config.HttpProperties;
+import com.tm.kafka.connect.rest.config.InstanceOfValidator;
+import com.tm.kafka.connect.rest.config.MethodRecommender;
+import com.tm.kafka.connect.rest.config.MethodValidator;
+import com.tm.kafka.connect.rest.config.PayloadGeneratorRecommender;
+import com.tm.kafka.connect.rest.config.TopicSelectorRecommender;
 import com.tm.kafka.connect.rest.http.executor.RequestExecutor;
 import com.tm.kafka.connect.rest.http.handler.DefaultResponseHandler;
 import com.tm.kafka.connect.rest.http.handler.ResponseHandler;
+import com.tm.kafka.connect.rest.http.payload.ConstantPayloadGenerator;
+import com.tm.kafka.connect.rest.http.payload.PayloadGenerator;
 import com.tm.kafka.connect.rest.selector.SimpleTopicSelector;
 import com.tm.kafka.connect.rest.selector.TopicSelector;
 import org.apache.kafka.common.config.AbstractConfig;
@@ -13,14 +20,18 @@ import org.apache.kafka.common.config.ConfigDef.Type;
 import org.apache.kafka.connect.errors.ConnectException;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
 
 public class RestSourceConnectorConfig extends AbstractConfig implements HttpProperties {
 
-  static final String SOURCE_POLL_INTERVAL_CONFIG = "rest.source.poll.interval.ms";
+  private static final String SOURCE_POLL_INTERVAL_CONFIG = "rest.source.poll.interval.ms";
   private static final String SOURCE_POLL_INTERVAL_DOC = "How often to poll the source URL.";
   private static final String SOURCE_POLL_INTERVAL_DISPLAY = "Polling interval";
   private static final Long SOURCE_POLL_INTERVAL_DEFAULT = 60000L;
@@ -38,10 +49,19 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
   private static final String SOURCE_URL_DOC = "The URL for REST source connector.";
   private static final String SOURCE_URL_DISPLAY = "URL for REST source connector.";
 
-  static final String SOURCE_DATA_CONFIG = "rest.source.data";
-  private static final String SOURCE_DATA_DOC = "The data for REST source connector.";
-  private static final String SOURCE_DATA_DISPLAY = "Data for REST source connector.";
-  private static final String SOURCE_DATA_DEFAULT = null;
+  private static final String SOURCE_PAYLOAD_GENERATOR_CONFIG = "rest.source.data.generator";
+  private static final String SOURCE_PAYLOAD_GENERATOR_DOC = "The payload generator class which will produce the HTTP " +
+    "request payload to be sent to the REST endpoint.  The payload may be sent as request parameters in the case of a " +
+    "GET request, or as the request body in the case of POST";
+  private static final String SOURCE_PAYLOAD_GENERATOR_DISPLAY = "Payload Generator class for REST source connector.";
+  private static final Class<? extends PayloadGenerator> SOURCE_PAYLOAD_GENERATOR_DEFAULT = ConstantPayloadGenerator.class;
+
+  static final String SOURCE_PAYLOAD_CONFIG = "rest.source.data";
+  private static final String SOURCE_PAYLOAD_DOC = "The HTTP request payload that will be sent with each REST request.  " +
+    "The payload may be sent as request parameters in the case of a GET request, or as the request body in the case of " +
+    "POST.  Some Payload Generator implementations may modify or replace this payload.";
+  private static final String SOURCE_PAYLOAD_DISPLAY = "Payload for REST source connector.";
+  private static final String SOURCE_PAYLOAD_DEFAULT = null;
 
   static final String SOURCE_TOPIC_SELECTOR_CONFIG = "rest.source.topic.selector";
   private static final String SOURCE_TOPIC_SELECTOR_DOC = "The topic selector class for REST source connector.";
@@ -83,6 +103,7 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
   private static final String SOURCE_DATE_FORMAT_DEFAULT = "MM-dd-yyyy HH:mm:ss.SSS";
 
   private final TopicSelector topicSelector;
+  private final PayloadGenerator payloadGenerator;
   private final Map<String, String> requestProperties;
   private RequestExecutor requestExecutor;
 
@@ -92,8 +113,12 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
     try {
       topicSelector = ((Class<? extends TopicSelector>)
         getClass(SOURCE_TOPIC_SELECTOR_CONFIG)).getDeclaredConstructor().newInstance();
+      payloadGenerator = ((Class<? extends PayloadGenerator>)
+        getClass(SOURCE_PAYLOAD_GENERATOR_CONFIG)).getDeclaredConstructor(RestSourceConnectorConfig.class)
+        .newInstance(this);
       requestExecutor = (RequestExecutor)
-        getClass(SOURCE_REQUEST_EXECUTOR_CONFIG).getDeclaredConstructor(HttpProperties.class).newInstance(this);
+        getClass(SOURCE_REQUEST_EXECUTOR_CONFIG).getDeclaredConstructor(HttpProperties.class)
+          .newInstance(this);
     } catch (IllegalAccessException | InstantiationException
       | InvocationTargetException | NoSuchMethodException e) {
       throw new ConnectException("Invalid class", e);
@@ -154,15 +179,27 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
         ConfigDef.Width.SHORT,
         SOURCE_URL_DISPLAY)
 
-      .define(SOURCE_DATA_CONFIG,
-        Type.STRING,
-        SOURCE_DATA_DEFAULT,
-        Importance.LOW,
-        SOURCE_DATA_DOC,
+      .define(SOURCE_PAYLOAD_GENERATOR_CONFIG,
+        Type.CLASS,
+        SOURCE_PAYLOAD_GENERATOR_DEFAULT,
+        new InstanceOfValidator(PayloadGenerator.class),
+        Importance.HIGH,
+        SOURCE_PAYLOAD_GENERATOR_DOC,
         group,
         ++orderInGroup,
         ConfigDef.Width.SHORT,
-        SOURCE_DATA_DISPLAY)
+        SOURCE_PAYLOAD_GENERATOR_DISPLAY,
+        new PayloadGeneratorRecommender())
+
+      .define(SOURCE_PAYLOAD_CONFIG,
+        Type.STRING,
+        SOURCE_PAYLOAD_DEFAULT,
+        Importance.LOW,
+        SOURCE_PAYLOAD_DOC,
+        group,
+        ++orderInGroup,
+        ConfigDef.Width.SHORT,
+        SOURCE_PAYLOAD_DISPLAY)
 
       .define(SOURCE_TOPIC_LIST_CONFIG,
         Type.LIST,
@@ -177,7 +214,7 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
       .define(SOURCE_TOPIC_SELECTOR_CONFIG,
         Type.CLASS,
         SOURCE_TOPIC_SELECTOR_DEFAULT,
-        new TopicSelectorValidator(),
+        new InstanceOfValidator(TopicSelector.class),
         Importance.HIGH,
         SOURCE_TOPIC_SELECTOR_DOC,
         group,
@@ -280,8 +317,12 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
     return topicSelector;
   }
 
+  public PayloadGenerator getPayloadGenerator() {
+    return payloadGenerator;
+  }
+
   public String getData() {
-    return this.getString(SOURCE_DATA_CONFIG);
+    return this.getString(SOURCE_PAYLOAD_CONFIG);
   }
 
   public Map<String, String> getRequestProperties() {

@@ -51,7 +51,7 @@ public class Request {
       this.headers = headers;
     }
 
-    public Request createRequest(String  payload) {
+    public Request createRequest(String payload) {
       return new Request(url, method, payload, headers);
     }
   }

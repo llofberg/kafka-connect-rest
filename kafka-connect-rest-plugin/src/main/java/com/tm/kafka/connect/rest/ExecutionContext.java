@@ -11,7 +11,7 @@ public class ExecutionContext {
 
   public static ExecutionContext create(String taskName) {
     ExecutionContext context = new ExecutionContext();
-    context.taskName =taskName;
+    context.taskName = taskName;
     return context;
   }
 }
