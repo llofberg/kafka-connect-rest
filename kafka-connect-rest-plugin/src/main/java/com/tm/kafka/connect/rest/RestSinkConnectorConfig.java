@@ -11,7 +11,12 @@ import org.apache.kafka.common.config.ConfigDef.Type;
 import org.apache.kafka.connect.errors.ConnectException;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
@@ -89,7 +94,6 @@ public class RestSinkConnectorConfig extends AbstractConfig implements HttpPrope
   private final Map<String, String> requestProperties;
   private RequestExecutor requestExecutor;
 
-  @SuppressWarnings("unchecked")
   protected RestSinkConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
     super(config, parsedConfig);
     try {

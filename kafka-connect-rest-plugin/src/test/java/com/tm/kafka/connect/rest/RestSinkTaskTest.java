@@ -16,7 +16,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Arrays;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RestSinkTaskTest {

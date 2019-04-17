@@ -74,7 +74,7 @@ public class RestSourceTask extends SourceTask {
     boolean makeAnotherRequest = true;
 
     try {
-      while(makeAnotherRequest) {
+      while (makeAnotherRequest) {
         Request request = requestFactory.createRequest(payloadGenerator.getPayload());
 
         if (log.isTraceEnabled()) {

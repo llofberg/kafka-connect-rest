@@ -1,8 +1,8 @@
 package com.tm.kafka.connect.rest.http.handler;
 
 import com.tm.kafka.connect.rest.ExecutionContext;
-import com.tm.kafka.connect.rest.metrics.Metrics;
 import com.tm.kafka.connect.rest.http.Response;
+import com.tm.kafka.connect.rest.metrics.Metrics;
 import org.apache.kafka.connect.errors.RetriableException;
 
 import java.util.ArrayList;

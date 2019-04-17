@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Map;
 
-import static com.tm.kafka.connect.rest.metrics.Metrics.*;
+import static com.tm.kafka.connect.rest.metrics.Metrics.RETRIABLE_ERROR_METRIC;
+import static com.tm.kafka.connect.rest.metrics.Metrics.UNRETRIABLE_ERROR_METRIC;
+import static com.tm.kafka.connect.rest.metrics.Metrics.increaseCounter;
 
 public class RestSinkTask extends SinkTask {
 
@@ -50,7 +52,7 @@ public class RestSinkTask extends SinkTask {
           Request request = requestFactory.createRequest(payload);
 
           Map<String, String> headers = request.getHeaders();
-          if(record.headers()!=null) {
+          if (record.headers() != null) {
             for (Header header : record.headers()) {
               headers.put(header.key(), String.valueOf(header.value()));
             }

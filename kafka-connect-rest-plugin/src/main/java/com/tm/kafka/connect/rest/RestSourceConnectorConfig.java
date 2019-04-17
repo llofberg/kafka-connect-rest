@@ -1,6 +1,11 @@
 package com.tm.kafka.connect.rest;
 
-import com.tm.kafka.connect.rest.config.*;
+import com.tm.kafka.connect.rest.config.HttpProperties;
+import com.tm.kafka.connect.rest.config.InstanceOfValidator;
+import com.tm.kafka.connect.rest.config.MethodRecommender;
+import com.tm.kafka.connect.rest.config.MethodValidator;
+import com.tm.kafka.connect.rest.config.PayloadGeneratorRecommender;
+import com.tm.kafka.connect.rest.config.TopicSelectorRecommender;
 import com.tm.kafka.connect.rest.http.executor.RequestExecutor;
 import com.tm.kafka.connect.rest.http.handler.DefaultResponseHandler;
 import com.tm.kafka.connect.rest.http.handler.ResponseHandler;
@@ -15,14 +20,18 @@ import org.apache.kafka.common.config.ConfigDef.Type;
 import org.apache.kafka.connect.errors.ConnectException;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
 
 public class RestSourceConnectorConfig extends AbstractConfig implements HttpProperties {
 
-  static final String SOURCE_POLL_INTERVAL_CONFIG = "rest.source.poll.interval.ms";
+  private static final String SOURCE_POLL_INTERVAL_CONFIG = "rest.source.poll.interval.ms";
   private static final String SOURCE_POLL_INTERVAL_DOC = "How often to poll the source URL.";
   private static final String SOURCE_POLL_INTERVAL_DISPLAY = "Polling interval";
   private static final Long SOURCE_POLL_INTERVAL_DEFAULT = 60000L;
@@ -40,7 +49,7 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
   private static final String SOURCE_URL_DOC = "The URL for REST source connector.";
   private static final String SOURCE_URL_DISPLAY = "URL for REST source connector.";
 
-  static final String SOURCE_PAYLOAD_GENERATOR_CONFIG = "rest.source.data.generator";
+  private static final String SOURCE_PAYLOAD_GENERATOR_CONFIG = "rest.source.data.generator";
   private static final String SOURCE_PAYLOAD_GENERATOR_DOC = "The payload generator class which will produce the HTTP " +
     "request payload to be sent to the REST endpoint.  The payload may be sent as request parameters in the case of a " +
     "GET request, or as the request body in the case of POST";
@@ -106,7 +115,7 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
         getClass(SOURCE_TOPIC_SELECTOR_CONFIG)).getDeclaredConstructor().newInstance();
       payloadGenerator = ((Class<? extends PayloadGenerator>)
         getClass(SOURCE_PAYLOAD_GENERATOR_CONFIG)).getDeclaredConstructor(RestSourceConnectorConfig.class)
-          .newInstance(this);
+        .newInstance(this);
       requestExecutor = (RequestExecutor)
         getClass(SOURCE_REQUEST_EXECUTOR_CONFIG).getDeclaredConstructor(HttpProperties.class)
           .newInstance(this);

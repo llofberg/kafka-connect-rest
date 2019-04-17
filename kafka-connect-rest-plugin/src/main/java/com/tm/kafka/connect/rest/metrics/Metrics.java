@@ -10,8 +10,8 @@ public class Metrics {
   public static final String RETRIABLE_ERROR_METRIC = "retriable_error";
   public static final String UNRETRIABLE_ERROR_METRIC = "unretriable_error";
 
-  static final MetricRegistry metrics   = new MetricRegistry();
-  static final JmxReporter jmxReporter  = JmxReporter.forRegistry(metrics).build();
+  static final MetricRegistry metrics = new MetricRegistry();
+  static final JmxReporter jmxReporter = JmxReporter.forRegistry(metrics).build();
 
   static {
     jmxReporter.start();
