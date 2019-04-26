@@ -23,7 +23,7 @@
     <jackson.version>2.9.8</jackson.version>
     <confluent.version>5.2.1</confluent.version>
     <confluent.maven.repo>http://packages.confluent.io/maven/</confluent.maven.repo>
-    <powermock.version>1.7.4</powermock.version>
+    <powermock.version>2.0.2</powermock.version>
     <metrics.version>4.0.0</metrics.version>
     <avro.version>1.8.2</avro.version>
   </properties>
@@ -128,7 +128,7 @@
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>1.10.19</version>
+        <version>2.27.0</version>
         <scope>test</scope>
       </dependency>
 
@@ -159,7 +159,7 @@
       </dependency>
       <dependency>
         <groupId>org.powermock</groupId>
-        <artifactId>powermock-api-mockito</artifactId>
+        <artifactId>powermock-api-mockito2</artifactId>
         <version>${powermock.version}</version>
         <scope>test</scope>
       </dependency>
@@ -247,7 +247,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.1</version>
+        <version>0.8.3</version>
         <executions>
           <execution>
             <id>jacoco-initialize</id>
