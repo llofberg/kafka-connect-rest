@@ -4,8 +4,7 @@ package com.tm.kafka.connect.rest;
 import com.tm.kafka.connect.rest.config.InstanceOfValidator;
 import com.tm.kafka.connect.rest.config.MethodRecommender;
 import com.tm.kafka.connect.rest.config.MethodValidator;
-import com.tm.kafka.connect.rest.config.PayloadGeneratorRecommender;
-import com.tm.kafka.connect.rest.config.TopicSelectorRecommender;
+import com.tm.kafka.connect.rest.config.ServiceProviderInterfaceRecommender;
 import com.tm.kafka.connect.rest.http.executor.RequestExecutor;
 import com.tm.kafka.connect.rest.http.handler.DefaultResponseHandler;
 import com.tm.kafka.connect.rest.http.handler.ResponseHandler;
@@ -72,7 +71,6 @@ public class RestSourceConnectorConfig extends AbstractConfig {
   private RequestExecutor requestExecutor;
 
 
-  @SuppressWarnings("unchecked")
   protected RestSourceConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
     super(config, parsedConfig);
     topicSelector = this.getConfiguredInstance(SOURCE_TOPIC_SELECTOR_CONFIG, TopicSelector.class);
@@ -144,7 +142,7 @@ public class RestSourceConnectorConfig extends AbstractConfig {
         ++orderInGroup,
         ConfigDef.Width.SHORT,
         SOURCE_PAYLOAD_GENERATOR_DISPLAY,
-        new PayloadGeneratorRecommender())
+        new ServiceProviderInterfaceRecommender<>(PayloadGenerator.class))
 
       .define(SOURCE_TOPIC_SELECTOR_CONFIG,
         Type.CLASS,
@@ -156,17 +154,19 @@ public class RestSourceConnectorConfig extends AbstractConfig {
         ++orderInGroup,
         ConfigDef.Width.SHORT,
         SOURCE_TOPIC_SELECTOR_DISPLAY,
-        new TopicSelectorRecommender())
+        new ServiceProviderInterfaceRecommender<>(TopicSelector.class))
 
       .define(SOURCE_REQUEST_EXECUTOR_CONFIG,
         Type.CLASS,
         SOURCE_REQUEST_EXECUTOR_DEFAULT,
+        new InstanceOfValidator(RequestExecutor.class),
         Importance.LOW,
         SOURCE_REQUEST_EXECUTOR_DOC,
         group,
         ++orderInGroup,
         ConfigDef.Width.NONE,
-        SOURCE_REQUEST_EXECUTOR_DISPLAY)
+        SOURCE_REQUEST_EXECUTOR_DISPLAY,
+        new ServiceProviderInterfaceRecommender<>(RequestExecutor.class))
       ;
   }
 

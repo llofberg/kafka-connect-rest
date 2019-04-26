@@ -32,7 +32,6 @@ public class OkHttpRequestExecutorConfig extends AbstractConfig {
   private static final int HTTP_MAX_IDLE_CONNECTION_DEFAULT = 5;
 
 
-  @SuppressWarnings("unchecked")
   protected OkHttpRequestExecutorConfig(ConfigDef config, Map<String, ?> parsedConfig) {
     super(config, parsedConfig);
   }

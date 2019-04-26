@@ -21,7 +21,6 @@ public class ConstantPayloadGeneratorConfig extends AbstractConfig {
   private static final String PAYLOAD_DEFAULT = null;
 
 
-  @SuppressWarnings("unchecked")
   protected ConstantPayloadGeneratorConfig(ConfigDef config, Map<String, ?> parsedConfig) {
     super(config, parsedConfig);
   }

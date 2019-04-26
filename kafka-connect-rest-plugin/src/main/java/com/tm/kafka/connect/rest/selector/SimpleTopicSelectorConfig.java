@@ -21,7 +21,6 @@ public class SimpleTopicSelectorConfig extends AbstractConfig {
   private static final String TOPIC_LIST_DISPLAY = "Source destination topics";
 
 
-  @SuppressWarnings("unchecked")
   protected SimpleTopicSelectorConfig(ConfigDef config, Map<String, ?> parsedConfig) {
     super(config, parsedConfig);
   }

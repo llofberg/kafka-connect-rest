@@ -9,8 +9,12 @@ import com.tm.kafka.connect.rest.http.Response;
  * Get the request that should be made next.
  * This next request might be made immediately or on next poll.
  * <p>
- * Note that this is currently only used by sources,
+ * This is currently only used by sources,
  * but could be relevant to sinks if something more than the kafka message needed to be sent.
+ * <p>
+ * Note: This is a Service Provider Interface (SPI)
+ * All implementations should be listed in
+ * META-INF/services/com.tm.kafka.connect.rest.http.payload.PayloadGenerator
  */
 public interface PayloadGenerator {
 

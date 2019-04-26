@@ -1,0 +1,3 @@
+# This file lists the available implementations of the RequestExecutor SPI interface
+# This interface provides HTTP request execution functionality
+com.tm.kafka.connect.rest.http.executor.OkHttpRequestExecutor

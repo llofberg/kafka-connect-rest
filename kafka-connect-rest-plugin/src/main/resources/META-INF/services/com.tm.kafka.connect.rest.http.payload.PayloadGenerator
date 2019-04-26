@@ -1,0 +1,3 @@
+# This file lists the available implementations of the PayloadGenerator SPI interface
+# This interface provides HTTP payload generation functionality
+com.tm.kafka.connect.rest.http.payload.ConstantPayloadGenerator
