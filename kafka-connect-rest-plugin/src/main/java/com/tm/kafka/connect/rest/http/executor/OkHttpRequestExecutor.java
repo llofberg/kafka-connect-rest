@@ -1,12 +1,12 @@
 package com.tm.kafka.connect.rest.http.executor;
 
 
-import com.tm.kafka.connect.rest.config.HttpProperties;
 import okhttp3.ConnectionPool;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
+import org.apache.kafka.common.Configurable;
 import org.apache.kafka.connect.errors.RetriableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,17 +19,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 
-public class OkHttpRequestExecutor implements RequestExecutor {
+public class OkHttpRequestExecutor implements RequestExecutor, Configurable {
 
   private static Logger log = LoggerFactory.getLogger(OkHttpRequestExecutor.class);
 
-  private final OkHttpClient client;
+  private OkHttpClient client;
 
-  public OkHttpRequestExecutor(HttpProperties props) {
+
+  @Override
+  public void configure(Map<String, ?> props) {
+    final OkHttpRequestExecutorConfig config = new OkHttpRequestExecutorConfig(props);
+
     client = new OkHttpClient.Builder()
-      .connectionPool(new ConnectionPool(props.getMaxIdleConnections(), props.getKeepAliveDuration(), TimeUnit.MILLISECONDS))
-      .connectTimeout(props.getConnectionTimeout(), TimeUnit.MILLISECONDS)
-      .readTimeout(props.getReadTimeout(), TimeUnit.MILLISECONDS)
+      .connectionPool(new ConnectionPool(config.getMaxIdleConnections(), config.getKeepAliveDuration(), TimeUnit.MILLISECONDS))
+      .connectTimeout(config.getConnectionTimeout(), TimeUnit.MILLISECONDS)
+      .readTimeout(config.getReadTimeout(), TimeUnit.MILLISECONDS)
       .build();
   }
 

@@ -1,6 +1,8 @@
 package com.tm.kafka.connect.rest;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.tm.kafka.connect.rest.http.payload.ConstantPayloadGeneratorConfig;
+import com.tm.kafka.connect.rest.selector.SimpleTopicSelectorConfig;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.record.TimestampType;
 import org.apache.kafka.connect.sink.SinkRecord;
@@ -75,9 +77,9 @@ public class RestTaskTest {
     props = new HashMap<String, String>() {{
       put(RestSourceConnectorConfig.SOURCE_METHOD_CONFIG, METHOD);
       put(RestSourceConnectorConfig.SOURCE_URL_CONFIG, URL);
-      put(RestSourceConnectorConfig.SOURCE_PAYLOAD_CONFIG, DATA);
+      put(ConstantPayloadGeneratorConfig.PAYLOAD_CONFIG, DATA);
       put(RestSourceConnectorConfig.SOURCE_TOPIC_SELECTOR_CONFIG, TOPIC_SELECTOR);
-      put(RestSourceConnectorConfig.SOURCE_TOPIC_LIST_CONFIG, REST_SOURCE_DESTINATION_TOPIC_LIST);
+      put(SimpleTopicSelectorConfig.TOPIC_LIST_CONFIG, REST_SOURCE_DESTINATION_TOPIC_LIST);
       put(RestSourceConnectorConfig.SOURCE_HEADERS_LIST_CONFIG, HEADERS_LIST);
     }};
 

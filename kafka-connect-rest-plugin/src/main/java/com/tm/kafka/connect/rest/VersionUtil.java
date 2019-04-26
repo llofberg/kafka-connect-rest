@@ -1,7 +1,7 @@
 package com.tm.kafka.connect.rest;
 
-class VersionUtil {
-  static String getVersion() {
+public class VersionUtil {
+  public static String getVersion() {
     try {
       return VersionUtil.class.getPackage().getImplementationVersion();
     } catch (Exception ex) {

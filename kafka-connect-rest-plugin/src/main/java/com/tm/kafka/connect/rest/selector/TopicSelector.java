@@ -11,7 +11,6 @@ import com.tm.kafka.connect.rest.RestSourceConnectorConfig;
  * in order to be usable in config.
  */
 public interface TopicSelector {
-  String getTopic(Object data);
 
-  void start(RestSourceConnectorConfig config);
+  String getTopic(Object data);
 }

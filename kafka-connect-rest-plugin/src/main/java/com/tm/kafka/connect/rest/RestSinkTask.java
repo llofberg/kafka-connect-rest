@@ -34,7 +34,7 @@ public class RestSinkTask extends SinkTask {
     RestSinkConnectorConfig connectorConfig = new RestSinkConnectorConfig(map);
     taskName = map.getOrDefault("name", "unknown");
     requestFactory = new Request.RequestFactory(connectorConfig.getUrl(), connectorConfig.getMethod(),
-      connectorConfig.getRequestProperties());
+      connectorConfig.getRequestHeaders());
     retryBackoff = connectorConfig.getRetryBackoff();
     maxRetries = connectorConfig.getMaxRetries();
     responseHandler = connectorConfig.getResponseHandler();
