@@ -1,11 +1,10 @@
 package com.tm.kafka.connect.rest;
 
-import com.tm.kafka.connect.rest.config.HttpProperties;
+
 import com.tm.kafka.connect.rest.config.InstanceOfValidator;
 import com.tm.kafka.connect.rest.config.MethodRecommender;
 import com.tm.kafka.connect.rest.config.MethodValidator;
-import com.tm.kafka.connect.rest.config.PayloadGeneratorRecommender;
-import com.tm.kafka.connect.rest.config.TopicSelectorRecommender;
+import com.tm.kafka.connect.rest.config.ServiceProviderInterfaceRecommender;
 import com.tm.kafka.connect.rest.http.executor.RequestExecutor;
 import com.tm.kafka.connect.rest.http.handler.DefaultResponseHandler;
 import com.tm.kafka.connect.rest.http.handler.ResponseHandler;
@@ -17,9 +16,7 @@ import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
-import org.apache.kafka.connect.errors.ConnectException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,104 +26,60 @@ import java.util.stream.Collectors;
 
 import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
 
-public class RestSourceConnectorConfig extends AbstractConfig implements HttpProperties {
 
-  private static final String SOURCE_POLL_INTERVAL_CONFIG = "rest.source.poll.interval.ms";
+public class RestSourceConnectorConfig extends AbstractConfig {
+
+  public static final String SOURCE_POLL_INTERVAL_CONFIG = "rest.source.poll.interval.ms";
   private static final String SOURCE_POLL_INTERVAL_DOC = "How often to poll the source URL.";
   private static final String SOURCE_POLL_INTERVAL_DISPLAY = "Polling interval";
   private static final Long SOURCE_POLL_INTERVAL_DEFAULT = 60000L;
 
-  static final String SOURCE_METHOD_CONFIG = "rest.source.method";
+  public static final String SOURCE_METHOD_CONFIG = "rest.source.method";
   private static final String SOURCE_METHOD_DOC = "The HTTP method for REST source connector.";
   private static final String SOURCE_METHOD_DISPLAY = "Source method";
   private static final String SOURCE_METHOD_DEFAULT = "POST";
 
-  static final String SOURCE_HEADERS_LIST_CONFIG = "rest.source.headers";
+  public static final String SOURCE_HEADERS_LIST_CONFIG = "rest.source.headers";
   private static final String SOURCE_HEADERS_LIST_DISPLAY = "Source request headers";
   private static final String SOURCE_HEADERS_LIST_DOC = "The request headers for REST source connector.";
 
-  static final String SOURCE_URL_CONFIG = "rest.source.url";
+  public static final String SOURCE_URL_CONFIG = "rest.source.url";
   private static final String SOURCE_URL_DOC = "The URL for REST source connector.";
   private static final String SOURCE_URL_DISPLAY = "URL for REST source connector.";
 
-  private static final String SOURCE_PAYLOAD_GENERATOR_CONFIG = "rest.source.data.generator";
+  public static final String SOURCE_PAYLOAD_GENERATOR_CONFIG = "rest.source.data.generator";
   private static final String SOURCE_PAYLOAD_GENERATOR_DOC = "The payload generator class which will produce the HTTP " +
     "request payload to be sent to the REST endpoint.  The payload may be sent as request parameters in the case of a " +
     "GET request, or as the request body in the case of POST";
   private static final String SOURCE_PAYLOAD_GENERATOR_DISPLAY = "Payload Generator class for REST source connector.";
   private static final Class<? extends PayloadGenerator> SOURCE_PAYLOAD_GENERATOR_DEFAULT = ConstantPayloadGenerator.class;
 
-  static final String SOURCE_PAYLOAD_CONFIG = "rest.source.data";
-  private static final String SOURCE_PAYLOAD_DOC = "The HTTP request payload that will be sent with each REST request.  " +
-    "The payload may be sent as request parameters in the case of a GET request, or as the request body in the case of " +
-    "POST.  Some Payload Generator implementations may modify or replace this payload.";
-  private static final String SOURCE_PAYLOAD_DISPLAY = "Payload for REST source connector.";
-  private static final String SOURCE_PAYLOAD_DEFAULT = null;
-
-  static final String SOURCE_TOPIC_SELECTOR_CONFIG = "rest.source.topic.selector";
+  public static final String SOURCE_TOPIC_SELECTOR_CONFIG = "rest.source.topic.selector";
   private static final String SOURCE_TOPIC_SELECTOR_DOC = "The topic selector class for REST source connector.";
   private static final String SOURCE_TOPIC_SELECTOR_DISPLAY = "Topic selector class for REST source connector.";
   private static final Class<? extends TopicSelector> SOURCE_TOPIC_SELECTOR_DEFAULT = SimpleTopicSelector.class;
 
-  static final String SOURCE_TOPIC_LIST_CONFIG = "rest.source.destination.topics";
-  private static final String SOURCE_TOPIC_LIST_DOC = "The list of destination topics for the REST source connector.";
-  private static final String SOURCE_TOPIC_LIST_DISPLAY = "Source destination topics";
-
-  private static final String SOURCE_HTTP_CONNECTION_TIMEOUT_CONFIG = "rest.http.connection.connection.timeout";
-  private static final String SOURCE_HTTP_CONNECTION_TIMEOUT_DISPLAY = "HTTP connection timeout in milliseconds";
-  private static final String SOURCE_HTTP_CONNECTION_TIMEOUT_DOC = "HTTP connection timeout in milliseconds";
-  private static final long SOURCE_HTTP_CONNECTION_TIMEOUT_DEFAULT = 2000;
-
-  private static final String SOURCE_HTTP_READ_TIMEOUT_CONFIG = "rest.http.connection.read.timeout";
-  private static final String SOURCE_HTTP_READ_TIMEOUT_DISPLAY = "HTTP read timeout in milliseconds";
-  private static final String SOURCE_HTTP_READ_TIMEOUT_DOC = "HTTP read timeout in milliseconds";
-  private static final long SOURCE_HTTP_READ_TIMEOUT_DEFAULT = 2000;
-
-  private static final String SOURCE_HTTP_KEEP_ALIVE_DURATION_CONFIG = "rest.http.connection.keep.alive.ms";
-  private static final String SOURCE_HTTP_KEEP_ALIVE_DURATION_DISPLAY = "Keep alive in milliseconds";
-  private static final String SOURCE_HTTP_KEEP_ALIVE_DURATION_DOC = "For how long keep HTTP connection should be keept alive in milliseconds";
-  private static final long SOURCE_HTTP_KEEP_ALIVE_DURATION_DEFAULT = 300000; // 5 minutes
-
-  private static final String SOURCE_HTTP_MAX_IDLE_CONNECTION_CONFIG = "rest.http.connection.max.idle";
-  private static final String SOURCE_HTTP_MAX_IDLE_CONNECTION_DISPLAY = "Number of idle connections";
-  private static final String SOURCE_HTTP_MAX_IDLE_CONNECTION_DOC = "How many idle connections per host can be keept opened";
-  private static final int SOURCE_HTTP_MAX_IDLE_CONNECTION_DEFAULT = 5;
-
-  private static final String SOURCE_REQUEST_EXECUTOR_CONFIG = "rest.http.executor.class";
+  public static final String SOURCE_REQUEST_EXECUTOR_CONFIG = "rest.http.executor.class";
   private static final String SOURCE_REQUEST_EXECUTOR_DISPLAY = "HTTP request executor";
   private static final String SOURCE_REQUEST_EXECUTOR_DOC = "HTTP request executor. Default is OkHttpRequestExecutor";
   private static final String SOURCE_REQUEST_EXECUTOR_DEFAULT = "com.tm.kafka.connect.rest.http.executor.OkHttpRequestExecutor";
 
-  private static final String SOURCE_DATE_FORMAT_CONFIG = "rest.http.date.format";
-  private static final String SOURCE_DATE_FORMAT_DISPLAY = "Date format for interpolation";
-  private static final String SOURCE_DATE_FORMAT_DOC = "Date format for interpolation. The default is MM-dd-yyyy HH:mm:ss.SSS";
-  private static final String SOURCE_DATE_FORMAT_DEFAULT = "MM-dd-yyyy HH:mm:ss.SSS";
 
   private final TopicSelector topicSelector;
   private final PayloadGenerator payloadGenerator;
-  private final Map<String, String> requestProperties;
+  private final Map<String, String> requestHeaders;
   private RequestExecutor requestExecutor;
 
-  @SuppressWarnings("unchecked")
+
   protected RestSourceConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
     super(config, parsedConfig);
-    try {
-      topicSelector = ((Class<? extends TopicSelector>)
-        getClass(SOURCE_TOPIC_SELECTOR_CONFIG)).getDeclaredConstructor().newInstance();
-      payloadGenerator = ((Class<? extends PayloadGenerator>)
-        getClass(SOURCE_PAYLOAD_GENERATOR_CONFIG)).getDeclaredConstructor(RestSourceConnectorConfig.class)
-        .newInstance(this);
-      requestExecutor = (RequestExecutor)
-        getClass(SOURCE_REQUEST_EXECUTOR_CONFIG).getDeclaredConstructor(HttpProperties.class)
-          .newInstance(this);
-    } catch (IllegalAccessException | InstantiationException
-      | InvocationTargetException | NoSuchMethodException e) {
-      throw new ConnectException("Invalid class", e);
-    }
-    requestProperties = getHeaders().stream()
+    topicSelector = this.getConfiguredInstance(SOURCE_TOPIC_SELECTOR_CONFIG, TopicSelector.class);
+    requestExecutor = this.getConfiguredInstance(SOURCE_REQUEST_EXECUTOR_CONFIG, RequestExecutor.class);
+    payloadGenerator = this.getConfiguredInstance(SOURCE_PAYLOAD_GENERATOR_CONFIG, PayloadGenerator.class);
+
+    requestHeaders = getHeaders().stream()
       .map(a -> a.split(":", 2))
       .collect(Collectors.toMap(a -> a[0], a -> a[1]));
-
   }
 
   public RestSourceConnectorConfig(Map<String, String> parsedConfig) {
@@ -189,27 +142,7 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
         ++orderInGroup,
         ConfigDef.Width.SHORT,
         SOURCE_PAYLOAD_GENERATOR_DISPLAY,
-        new PayloadGeneratorRecommender())
-
-      .define(SOURCE_PAYLOAD_CONFIG,
-        Type.STRING,
-        SOURCE_PAYLOAD_DEFAULT,
-        Importance.LOW,
-        SOURCE_PAYLOAD_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.SHORT,
-        SOURCE_PAYLOAD_DISPLAY)
-
-      .define(SOURCE_TOPIC_LIST_CONFIG,
-        Type.LIST,
-        NO_DEFAULT_VALUE,
-        Importance.HIGH,
-        SOURCE_TOPIC_LIST_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.SHORT,
-        SOURCE_TOPIC_LIST_DISPLAY)
+        new ServiceProviderInterfaceRecommender<>(PayloadGenerator.class))
 
       .define(SOURCE_TOPIC_SELECTOR_CONFIG,
         Type.CLASS,
@@ -221,67 +154,19 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
         ++orderInGroup,
         ConfigDef.Width.SHORT,
         SOURCE_TOPIC_SELECTOR_DISPLAY,
-        new TopicSelectorRecommender())
-
-      .define(SOURCE_HTTP_CONNECTION_TIMEOUT_CONFIG,
-        Type.LONG,
-        SOURCE_HTTP_CONNECTION_TIMEOUT_DEFAULT,
-        Importance.LOW,
-        SOURCE_HTTP_CONNECTION_TIMEOUT_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.NONE,
-        SOURCE_HTTP_CONNECTION_TIMEOUT_DISPLAY)
-
-      .define(SOURCE_HTTP_READ_TIMEOUT_CONFIG,
-        Type.LONG,
-        SOURCE_HTTP_READ_TIMEOUT_DEFAULT,
-        Importance.LOW,
-        SOURCE_HTTP_READ_TIMEOUT_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.NONE,
-        SOURCE_HTTP_READ_TIMEOUT_DISPLAY)
-
-      .define(SOURCE_HTTP_KEEP_ALIVE_DURATION_CONFIG,
-        Type.LONG,
-        SOURCE_HTTP_KEEP_ALIVE_DURATION_DEFAULT,
-        Importance.LOW,
-        SOURCE_HTTP_KEEP_ALIVE_DURATION_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.NONE,
-        SOURCE_HTTP_KEEP_ALIVE_DURATION_DISPLAY)
-
-      .define(SOURCE_HTTP_MAX_IDLE_CONNECTION_CONFIG,
-        Type.INT,
-        SOURCE_HTTP_MAX_IDLE_CONNECTION_DEFAULT,
-        Importance.LOW,
-        SOURCE_HTTP_MAX_IDLE_CONNECTION_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.NONE,
-        SOURCE_HTTP_MAX_IDLE_CONNECTION_DISPLAY)
+        new ServiceProviderInterfaceRecommender<>(TopicSelector.class))
 
       .define(SOURCE_REQUEST_EXECUTOR_CONFIG,
         Type.CLASS,
         SOURCE_REQUEST_EXECUTOR_DEFAULT,
+        new InstanceOfValidator(RequestExecutor.class),
         Importance.LOW,
         SOURCE_REQUEST_EXECUTOR_DOC,
         group,
         ++orderInGroup,
         ConfigDef.Width.NONE,
-        SOURCE_REQUEST_EXECUTOR_DISPLAY)
-
-      .define(SOURCE_DATE_FORMAT_CONFIG,
-        Type.STRING,
-        SOURCE_DATE_FORMAT_DEFAULT,
-        Importance.LOW,
-        SOURCE_DATE_FORMAT_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.NONE,
-        SOURCE_DATE_FORMAT_DISPLAY)
+        SOURCE_REQUEST_EXECUTOR_DISPLAY,
+        new ServiceProviderInterfaceRecommender<>(RequestExecutor.class))
       ;
   }
 
@@ -309,10 +194,6 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
     return this.getString(SOURCE_URL_CONFIG);
   }
 
-  public List<String> getTopics() {
-    return this.getList(SOURCE_TOPIC_LIST_CONFIG);
-  }
-
   public TopicSelector getTopicSelector() {
     return topicSelector;
   }
@@ -321,36 +202,8 @@ public class RestSourceConnectorConfig extends AbstractConfig implements HttpPro
     return payloadGenerator;
   }
 
-  public String getData() {
-    return this.getString(SOURCE_PAYLOAD_CONFIG);
-  }
-
-  public Map<String, String> getRequestProperties() {
-    return requestProperties;
-  }
-
   public Map<String, String> getRequestHeaders() {
-    return requestProperties;
-  }
-
-  @Override
-  public long getReadTimeout() {
-    return this.getLong(SOURCE_HTTP_READ_TIMEOUT_CONFIG);
-  }
-
-  @Override
-  public long getConnectionTimeout() {
-    return this.getLong(SOURCE_HTTP_CONNECTION_TIMEOUT_CONFIG);
-  }
-
-  @Override
-  public long getKeepAliveDuration() {
-    return this.getLong(SOURCE_HTTP_KEEP_ALIVE_DURATION_CONFIG);
-  }
-
-  @Override
-  public int getMaxIdleConnections() {
-    return this.getInt(SOURCE_HTTP_MAX_IDLE_CONNECTION_CONFIG);
+    return requestHeaders;
   }
 
   private static ConfigDef getConfig() {

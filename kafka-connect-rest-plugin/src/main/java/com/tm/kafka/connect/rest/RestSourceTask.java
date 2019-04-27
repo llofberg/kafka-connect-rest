@@ -54,12 +54,11 @@ public class RestSourceTask extends SourceTask {
     pollInterval = connectorConfig.getPollInterval();
     url = connectorConfig.getUrl();
     requestFactory = new Request.RequestFactory(url, connectorConfig.getMethod(),
-      connectorConfig.getRequestProperties());
+      connectorConfig.getRequestHeaders());
     payloadGenerator = connectorConfig.getPayloadGenerator();
     responseHandler = connectorConfig.getResponseHandler();
     executor = connectorConfig.getRequestExecutor();
     topicSelector = connectorConfig.getTopicSelector();
-    topicSelector.start(connectorConfig);
   }
 
   @Override

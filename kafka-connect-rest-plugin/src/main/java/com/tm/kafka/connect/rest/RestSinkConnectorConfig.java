@@ -1,6 +1,6 @@
 package com.tm.kafka.connect.rest;
 
-import com.tm.kafka.connect.rest.config.HttpProperties;
+
 import com.tm.kafka.connect.rest.http.executor.RequestExecutor;
 import com.tm.kafka.connect.rest.http.handler.DefaultResponseHandler;
 import com.tm.kafka.connect.rest.http.handler.ResponseHandler;
@@ -8,9 +8,7 @@ import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
-import org.apache.kafka.connect.errors.ConnectException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,7 +19,8 @@ import java.util.stream.Collectors;
 
 import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
 
-public class RestSinkConnectorConfig extends AbstractConfig implements HttpProperties {
+
+public class RestSinkConnectorConfig extends AbstractConfig {
 
   static final String SINK_METHOD_CONFIG = "rest.sink.method";
   private static final String SINK_METHOD_DOC = "The HTTP method for REST sink connector.";
@@ -35,26 +34,6 @@ public class RestSinkConnectorConfig extends AbstractConfig implements HttpPrope
   static final String SINK_URL_CONFIG = "rest.sink.url";
   private static final String SINK_URL_DOC = "The URL for REST sink connector.";
   private static final String SINK_URL_DISPLAY = "URL for REST sink connector.";
-
-  private static final String SINK_HTTP_CONNECTION_TIMEOUT_CONFIG = "rest.http.connection.connection.timeout";
-  private static final String SINK_HTTP_CONNECTION_TIMEOUT_DISPLAY = "HTTP connection timeout in milliseconds";
-  private static final String SINK_HTTP_CONNECTION_TIMEOUT_DOC = "HTTP connection timeout in milliseconds";
-  private static final long SINK_HTTP_CONNECTION_TIMEOUT_DEFAULT = 2000;
-
-  private static final String SINK_HTTP_READ_TIMEOUT_CONFIG = "rest.http.connection.read.timeout";
-  private static final String SINK_HTTP_READ_TIMEOUT_DISPLAY = "HTTP read timeout in milliseconds";
-  private static final String SINK_HTTP_READ_TIMEOUT_DOC = "HTTP read timeout in milliseconds";
-  private static final long SINK_HTTP_READ_TIMEOUT_DEFAULT = 2000;
-
-  private static final String SINK_HTTP_KEEP_ALIVE_DURATION_CONFIG = "rest.http.connection.keep.alive.ms";
-  private static final String SINK_HTTP_KEEP_ALIVE_DURATION_DISPLAY = "Keep alive in milliseconds";
-  private static final String SINK_HTTP_KEEP_ALIVE_DURATION_DOC = "For how long keep HTTP connection should be keept alive in milliseconds";
-  private static final long SINK_HTTP_KEEP_ALIVE_DURATION_DEFAULT = 300000; // 5 minutes
-
-  private static final String SINK_HTTP_MAX_IDLE_CONNECTION_CONFIG = "rest.http.connection.max.idle";
-  private static final String SINK_HTTP_MAX_IDLE_CONNECTION_DISPLAY = "Number of idle connections";
-  private static final String SINK_HTTP_MAX_IDLE_CONNECTION_DOC = "How many idle connections per host can be keept opened";
-  private static final int SINK_HTTP_MAX_IDLE_CONNECTION_DEFAULT = 5;
 
   private static final String SINK_HTTP_MAX_RETRIES_CONFIG = "rest.http.max.retries";
   private static final String SINK_HTTP_MAX_RETRIES_DISPLAY = "Number of times to retry request in case of failure";
@@ -91,19 +70,17 @@ public class RestSinkConnectorConfig extends AbstractConfig implements HttpPrope
 
   private static final long SINK_RETRY_BACKOFF_DEFAULT = 5000L;
 
-  private final Map<String, String> requestProperties;
+
+  private final Map<String, String> requestHeaders;
   private RequestExecutor requestExecutor;
+
 
   protected RestSinkConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
     super(config, parsedConfig);
-    try {
-      requestExecutor = (RequestExecutor)
-        getClass(SINK_REQUEST_EXECUTOR_CONFIG).getDeclaredConstructor(HttpProperties.class).newInstance(this);
-    } catch (IllegalAccessException | InstantiationException
-      | InvocationTargetException | NoSuchMethodException e) {
-      throw new ConnectException("Invalid class. Error: " + e.getMessage() + " " + e.getClass().getName(), e);
-    }
-    requestProperties = getHeaders().stream()
+
+    requestExecutor = this.getConfiguredInstance(SINK_REQUEST_EXECUTOR_CONFIG, RequestExecutor.class);
+
+    requestHeaders = getHeaders().stream()
       .map(a -> a.split(":", 2))
       .collect(Collectors.toMap(a -> a[0], a -> a[1]));
   }
@@ -157,46 +134,6 @@ public class RestSinkConnectorConfig extends AbstractConfig implements HttpPrope
         ++orderInGroup,
         ConfigDef.Width.NONE,
         SINK_RETRY_BACKOFF_DISPLAY)
-
-      .define(SINK_HTTP_CONNECTION_TIMEOUT_CONFIG,
-        Type.LONG,
-        SINK_HTTP_CONNECTION_TIMEOUT_DEFAULT,
-        Importance.LOW,
-        SINK_HTTP_CONNECTION_TIMEOUT_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.NONE,
-        SINK_HTTP_CONNECTION_TIMEOUT_DISPLAY)
-
-      .define(SINK_HTTP_READ_TIMEOUT_CONFIG,
-        Type.LONG,
-        SINK_HTTP_READ_TIMEOUT_DEFAULT,
-        Importance.LOW,
-        SINK_HTTP_READ_TIMEOUT_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.NONE,
-        SINK_HTTP_READ_TIMEOUT_DISPLAY)
-
-      .define(SINK_HTTP_KEEP_ALIVE_DURATION_CONFIG,
-        Type.LONG,
-        SINK_HTTP_KEEP_ALIVE_DURATION_DEFAULT,
-        Importance.LOW,
-        SINK_HTTP_KEEP_ALIVE_DURATION_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.NONE,
-        SINK_HTTP_KEEP_ALIVE_DURATION_DISPLAY)
-
-      .define(SINK_HTTP_MAX_IDLE_CONNECTION_CONFIG,
-        Type.INT,
-        SINK_HTTP_MAX_IDLE_CONNECTION_DEFAULT,
-        Importance.LOW,
-        SINK_HTTP_MAX_IDLE_CONNECTION_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.NONE,
-        SINK_HTTP_MAX_IDLE_CONNECTION_DISPLAY)
 
       .define(SINK_HTTP_MAX_RETRIES_CONFIG,
         Type.INT,
@@ -266,32 +203,8 @@ public class RestSinkConnectorConfig extends AbstractConfig implements HttpPrope
     return this.getLong(SINK_RETRY_BACKOFF_CONFIG);
   }
 
-  public Map<String, String> getRequestProperties() {
-    return requestProperties;
-  }
-
   public Map<String, String> getRequestHeaders() {
-    return requestProperties;
-  }
-
-  @Override
-  public long getReadTimeout() {
-    return this.getLong(SINK_HTTP_READ_TIMEOUT_CONFIG);
-  }
-
-  @Override
-  public long getConnectionTimeout() {
-    return this.getLong(SINK_HTTP_CONNECTION_TIMEOUT_CONFIG);
-  }
-
-  @Override
-  public long getKeepAliveDuration() {
-    return this.getLong(SINK_HTTP_KEEP_ALIVE_DURATION_CONFIG);
-  }
-
-  @Override
-  public int getMaxIdleConnections() {
-    return this.getInt(SINK_HTTP_MAX_IDLE_CONNECTION_CONFIG);
+    return requestHeaders;
   }
 
   public int getMaxRetries() {
