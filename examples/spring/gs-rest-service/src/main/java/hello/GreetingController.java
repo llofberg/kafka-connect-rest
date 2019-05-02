@@ -45,7 +45,13 @@ public class GreetingController {
       return greetOut;
     }
 
-    @PostMapping(value = "/count")
+  @RequestMapping(value = "/sum-plain", produces = "text/plain")
+  public String sum(@RequestParam(value = "val1", defaultValue = "1") long val1,
+                    @RequestParam(value = "val2", defaultValue = "1") long val2) {
+    return String.format("%d + %d = %d", val1, val2, (val1 + val2));
+  }
+
+  @PostMapping(value = "/count")
     public void count(@RequestBody Object request, @RequestHeader HttpHeaders headers) {
         log.info("Request /count: '{}', {}", request, headers);
     }

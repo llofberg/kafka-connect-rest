@@ -88,7 +88,7 @@ public class RestSourceTask extends SourceTask {
         }
 
         Map<String, String> sourcePartition = Collections.singletonMap("URL", url);
-        Map<String, Long> sourceOffset = Collections.singletonMap("timestamp", currentTimeMillis());
+        Map<String, Object> sourceOffset = payloadGenerator.getOffsets();
         for (String responseRecord : responseHandler.handle(response, ctx)) {
           SourceRecord sourceRecord = new SourceRecord(sourcePartition, sourceOffset,
             topicSelector.getTopic(responseRecord), Schema.STRING_SCHEMA, responseRecord);

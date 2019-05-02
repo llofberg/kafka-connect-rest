@@ -5,7 +5,10 @@ import com.tm.kafka.connect.rest.http.Request;
 import com.tm.kafka.connect.rest.http.Response;
 import org.apache.kafka.common.Configurable;
 
+import java.util.Collections;
 import java.util.Map;
+
+import static java.lang.System.currentTimeMillis;
 
 
 /**
@@ -46,5 +49,15 @@ public class ConstantPayloadGenerator implements PayloadGenerator, Configurable 
   @Override
   public Map<String, String> getRequestHeaders() {
     return requestHeaders;
+  }
+
+  @Override
+  public Map<String, Object> getOffsets() {
+    return Collections.singletonMap("timestamp", currentTimeMillis());
+  }
+
+  @Override
+  public void setOffsets(Map<String, Object> offsets) {
+    // do nothing.
   }
 }

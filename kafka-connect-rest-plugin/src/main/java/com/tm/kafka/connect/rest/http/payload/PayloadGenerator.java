@@ -50,5 +50,19 @@ public interface PayloadGenerator {
    * @return The headers to be sent to the REST service.
    */
   Map<String, String> getRequestHeaders();
+
+  /**
+   * Get the input stream offsets for the current payload.
+   *
+   * @return The offsets.
+   */
+  Map<String, Object> getOffsets();
+
+  /**
+   * Set the input stream offsets.
+   *
+   * @param offsets The offsets.
+   */
+  void setOffsets(Map<String, Object> offsets);
 }
 

@@ -1,10 +1,7 @@
 package com.tm.kafka.connect.rest;
 
 
-import com.tm.kafka.connect.rest.config.InstanceOfValidator;
-import com.tm.kafka.connect.rest.config.MethodRecommender;
-import com.tm.kafka.connect.rest.config.MethodValidator;
-import com.tm.kafka.connect.rest.config.ServiceProviderInterfaceRecommender;
+import com.tm.kafka.connect.rest.config.*;
 import com.tm.kafka.connect.rest.http.executor.RequestExecutor;
 import com.tm.kafka.connect.rest.http.handler.DefaultResponseHandler;
 import com.tm.kafka.connect.rest.http.handler.ResponseHandler;
