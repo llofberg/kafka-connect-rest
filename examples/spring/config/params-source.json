@@ -1,0 +1,17 @@
+{
+  "name": "ParamsRestSourceConnectorSpring",
+  "config": {
+    "producer.compression.type": "snappy",
+    "connector.class": "com.tm.kafka.connect.rest.RestSourceConnector",
+    "tasks.max": "1",
+    "rest.source.poll.interval.ms": "10000",
+    "rest.source.method": "POST",
+    "rest.source.url": "http://webservice:8080/reverse",
+    "rest.source.destination.topics": "restSourceDestinationTopic",
+    "rest.source.body": "{\"content\": \"This is a GREETING!\"}",
+    "rest.source.param.names": "caps, unused",
+    "rest.source.param.caps.value": "UPPER",
+    "rest.source.param.unused.value": "a&b+c",
+    "rest.source.headers": "Content-Type:application/json, Accept:application/json"
+  }
+}

@@ -77,10 +77,10 @@ public class RestTaskTest {
     props = new HashMap<String, String>() {{
       put(RestSourceConnectorConfig.SOURCE_METHOD_CONFIG, METHOD);
       put(RestSourceConnectorConfig.SOURCE_URL_CONFIG, URL);
-      put(ConstantPayloadGeneratorConfig.PAYLOAD_CONFIG, DATA);
+      put(ConstantPayloadGeneratorConfig.REQUEST_BODY_CONFIG, DATA);
+      put(ConstantPayloadGeneratorConfig.REQUEST_HEADERS_CONFIG, HEADERS_LIST);
       put(RestSourceConnectorConfig.SOURCE_TOPIC_SELECTOR_CONFIG, TOPIC_SELECTOR);
       put(SimpleTopicSelectorConfig.TOPIC_LIST_CONFIG, REST_SOURCE_DESTINATION_TOPIC_LIST);
-      put(RestSourceConnectorConfig.SOURCE_HEADERS_LIST_CONFIG, HEADERS_LIST);
     }};
 
     RestSourceTask sourceTask;

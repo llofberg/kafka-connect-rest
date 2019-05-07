@@ -4,6 +4,8 @@ package com.tm.kafka.connect.rest.http.payload;
 import com.tm.kafka.connect.rest.http.Request;
 import com.tm.kafka.connect.rest.http.Response;
 
+import java.util.Map;
+
 
 /**
  * Get the request that should be made next.
@@ -28,10 +30,25 @@ public interface PayloadGenerator {
   boolean update(Request request, Response response);
 
   /**
-   * Get the payload that should be sent with the next request.
+   * Get the HTTP request body that should be sent with the next request.
+   * This is not used for GET requests.
    *
-   * @return The payload to be sent to the REST service.
+   * @return The body content to be sent to the REST service.
    */
-  String getPayload();
+  String getRequestBody();
+
+  /**
+   * Get the HTTP request parameters that should be sent with the next request.
+   *
+   * @return The parameters to be sent to the REST service.
+   */
+  Map<String, String> getRequestParameters();
+
+  /**
+   * Get the HTTP request headers that should be sent with the next request.
+   *
+   * @return The headers to be sent to the REST service.
+   */
+  Map<String, String> getRequestHeaders();
 }
 

@@ -17,12 +17,8 @@ import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
 
@@ -38,10 +34,6 @@ public class RestSourceConnectorConfig extends AbstractConfig {
   private static final String SOURCE_METHOD_DOC = "The HTTP method for REST source connector.";
   private static final String SOURCE_METHOD_DISPLAY = "Source method";
   private static final String SOURCE_METHOD_DEFAULT = "POST";
-
-  public static final String SOURCE_HEADERS_LIST_CONFIG = "rest.source.headers";
-  private static final String SOURCE_HEADERS_LIST_DISPLAY = "Source request headers";
-  private static final String SOURCE_HEADERS_LIST_DOC = "The request headers for REST source connector.";
 
   public static final String SOURCE_URL_CONFIG = "rest.source.url";
   private static final String SOURCE_URL_DOC = "The URL for REST source connector.";
@@ -67,7 +59,6 @@ public class RestSourceConnectorConfig extends AbstractConfig {
 
   private final TopicSelector topicSelector;
   private final PayloadGenerator payloadGenerator;
-  private final Map<String, String> requestHeaders;
   private RequestExecutor requestExecutor;
 
 
@@ -76,10 +67,6 @@ public class RestSourceConnectorConfig extends AbstractConfig {
     topicSelector = this.getConfiguredInstance(SOURCE_TOPIC_SELECTOR_CONFIG, TopicSelector.class);
     requestExecutor = this.getConfiguredInstance(SOURCE_REQUEST_EXECUTOR_CONFIG, RequestExecutor.class);
     payloadGenerator = this.getConfiguredInstance(SOURCE_PAYLOAD_GENERATOR_CONFIG, PayloadGenerator.class);
-
-    requestHeaders = getHeaders().stream()
-      .map(a -> a.split(":", 2))
-      .collect(Collectors.toMap(a -> a[0], a -> a[1]));
   }
 
   public RestSourceConnectorConfig(Map<String, String> parsedConfig) {
@@ -111,16 +98,6 @@ public class RestSourceConnectorConfig extends AbstractConfig {
         ConfigDef.Width.SHORT,
         SOURCE_METHOD_DISPLAY,
         new MethodRecommender())
-
-      .define(SOURCE_HEADERS_LIST_CONFIG,
-        Type.LIST,
-        Collections.EMPTY_LIST,
-        Importance.HIGH,
-        SOURCE_HEADERS_LIST_DOC,
-        group,
-        ++orderInGroup,
-        ConfigDef.Width.SHORT,
-        SOURCE_HEADERS_LIST_DISPLAY)
 
       .define(SOURCE_URL_CONFIG,
         Type.STRING,
@@ -174,10 +151,6 @@ public class RestSourceConnectorConfig extends AbstractConfig {
     return new DefaultResponseHandler();
   }
 
-  private List<String> getHeaders() {
-    return new ArrayList<>(this.getList(SOURCE_HEADERS_LIST_CONFIG));
-  }
-
   public RequestExecutor getRequestExecutor() {
     return requestExecutor;
   }
@@ -200,10 +173,6 @@ public class RestSourceConnectorConfig extends AbstractConfig {
 
   public PayloadGenerator getPayloadGenerator() {
     return payloadGenerator;
-  }
-
-  public Map<String, String> getRequestHeaders() {
-    return requestHeaders;
   }
 
   private static ConfigDef getConfig() {

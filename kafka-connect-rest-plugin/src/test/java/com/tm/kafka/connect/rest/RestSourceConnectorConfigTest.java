@@ -18,7 +18,6 @@ public class RestSourceConnectorConfigTest {
 
     props.put("rest.source.poll.interval.ms", "60000");
     props.put("rest.source.method", "POST");
-    props.put("rest.source.headers", "Content-Type:application/json, Accept:application/json");
     props.put("rest.source.url", "http://test.foobar");
 
     props.put("rest.source.payload.converter.class", "com.tm.kafka.connect.rest.converter.source.SourceBytesPayloadConverter");
@@ -30,13 +29,8 @@ public class RestSourceConnectorConfigTest {
 
     RestSourceConnectorConfig config = new RestSourceConnectorConfig(props);
 
-    Map<String, String> expectedHeaders = new HashMap<>();
-    expectedHeaders.put("Content-Type", "application/json");
-    expectedHeaders.put("Accept", "application/json");
-
     assertEquals(60000l, config.getPollInterval());
     assertEquals("POST", config.getMethod());
-    assertEquals(expectedHeaders, config.getRequestHeaders());
     assertEquals("http://test.foobar", config.getUrl());
 
     assertNotNull(config.getTopicSelector());

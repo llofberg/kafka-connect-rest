@@ -22,8 +22,36 @@ public class GreetingController {
         return greeting;
     }
 
+    @RequestMapping("/reverse")
+    public Greeting reverse(@RequestParam(value = "caps", required = false) Capitalisation caps,
+                             @RequestBody Greeting greetIn) {
+      StringBuilder sb = new StringBuilder(greetIn.getContent());
+      String reverse = sb.reverse().toString();
+      Greeting greetOut = new Greeting();
+      if (caps == null) {
+        greetOut.setContent(reverse);
+      } else {
+        switch (caps) {
+          case UPPER:
+            greetOut.setContent(reverse.toUpperCase());
+            break;
+          case LOWER:
+            greetOut.setContent(reverse.toLowerCase());
+            break;
+          default:
+            greetOut.setContent(reverse);
+        }
+      }
+      return greetOut;
+    }
+
     @PostMapping(value = "/count")
     public void count(@RequestBody Object request, @RequestHeader HttpHeaders headers) {
         log.info("Request /count: '{}', {}", request, headers);
+    }
+
+    public static enum Capitalisation {
+      UPPER,
+      LOWER
     }
 }

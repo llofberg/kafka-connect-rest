@@ -14,13 +14,17 @@ import java.util.Map;
  */
 public class ConstantPayloadGenerator implements PayloadGenerator, Configurable {
 
-  private String payload;
+  private String requestBody;
+  private Map<String, String> requestParameters;
+  private Map<String, String> requestHeaders;
 
   @Override
   public void configure(Map<String, ?> props) {
     final ConstantPayloadGeneratorConfig config = new ConstantPayloadGeneratorConfig(props);
 
-    payload = config.getPayload();
+    requestBody = config.getRequestBody();
+    requestParameters = config.getRequestParameters();
+    requestHeaders = config.getRequestHeaders();
   }
 
   @Override
@@ -30,7 +34,17 @@ public class ConstantPayloadGenerator implements PayloadGenerator, Configurable 
   }
 
   @Override
-  public String getPayload() {
-    return payload;
+  public String getRequestBody() {
+    return requestBody;
+  }
+
+  @Override
+  public Map<String, String> getRequestParameters() {
+    return requestParameters;
+  }
+
+  @Override
+  public Map<String, String> getRequestHeaders() {
+    return requestHeaders;
   }
 }

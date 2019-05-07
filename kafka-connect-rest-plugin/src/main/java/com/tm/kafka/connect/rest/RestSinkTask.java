@@ -25,6 +25,7 @@ public class RestSinkTask extends SinkTask {
   private Long retryBackoff;
   private Integer maxRetries;
   private Request.RequestFactory requestFactory;
+  private Map<String, String> headers;
   private RequestExecutor executor;
   private ResponseHandler responseHandler;
   private String taskName = "";
@@ -33,8 +34,8 @@ public class RestSinkTask extends SinkTask {
   public void start(Map<String, String> map) {
     RestSinkConnectorConfig connectorConfig = new RestSinkConnectorConfig(map);
     taskName = map.getOrDefault("name", "unknown");
-    requestFactory = new Request.RequestFactory(connectorConfig.getUrl(), connectorConfig.getMethod(),
-      connectorConfig.getRequestHeaders());
+    requestFactory = new Request.RequestFactory(connectorConfig.getUrl(), connectorConfig.getMethod());
+    headers = connectorConfig.getRequestHeaders();
     retryBackoff = connectorConfig.getRetryBackoff();
     maxRetries = connectorConfig.getMaxRetries();
     responseHandler = connectorConfig.getResponseHandler();
@@ -49,7 +50,7 @@ public class RestSinkTask extends SinkTask {
       while (maxRetries < 0 || retries-- >= 0) {
         try {
           String payload = (String) record.value();
-          Request request = requestFactory.createRequest(payload);
+          Request request = requestFactory.createRequest(payload, headers);
 
           Map<String, String> headers = request.getHeaders();
           if (record.headers() != null) {
