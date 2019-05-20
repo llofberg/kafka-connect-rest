@@ -17,7 +17,8 @@ import java.util.regex.Pattern;
  * Lookup values used to populate dynamic payloads.
  * These values will be substituted into the payload template.
  *
- * This implementation looks up values in the System properties and then in environment variables.
+ * This implementation uses RegExes to extract values from the HTTP response,
+ * and if not found looks them up in the System properties and then in environment variables.
  */
 public class RegexResponseValueProvider extends EnvironmentValueProvider implements Configurable {
 
