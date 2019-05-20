@@ -1,4 +1,4 @@
-package com.tm.kafka.connect.rest;
+package com.tm.kafka.connect.rest.http.payload;
 
 
 import com.tm.kafka.connect.rest.http.payload.ConstantPayloadGeneratorConfig;

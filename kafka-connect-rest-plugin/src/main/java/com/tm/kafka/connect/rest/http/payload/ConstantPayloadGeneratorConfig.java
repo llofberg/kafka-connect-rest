@@ -19,7 +19,7 @@ public class ConstantPayloadGeneratorConfig extends AbstractConfig {
   private static final String REQUEST_BODY_DOC = "The HTTP request body that will be sent with each REST request. " +
     "This parameter is not appliccable to GET requests.";
   private static final String REQUEST_BODY_DISPLAY = "HTTP request body for REST source connector.";
-  private static final String REQUEST_BODY_DEFAULT = null;
+  private static final String REQUEST_BODY_DEFAULT = "";
 
   public static final String REQUEST_PARAMETER_NAMES_CONFIG = "rest.source.param.names";
   private static final String REQUEST_PARAMETER_NAMES_DOC = "The HTTP request parameter names that will be sent with each " +
