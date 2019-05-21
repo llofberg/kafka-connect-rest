@@ -27,17 +27,12 @@ public class RegexResponseValueProvider extends EnvironmentValueProvider impleme
   public static final String MULTI_VALUE_SEPARATOR = ",";
 
   private Map<String, Pattern> patterns;
-  private Map<String, String> values;
 
 
   @Override
   public void configure(Map<String, ?> props) {
     final RegexResponseValueProviderConfig config = new RegexResponseValueProviderConfig(props);
-
-    patterns = new HashMap<>(config.getResponseVariableNames().size());
-    config.getResponseVariableRegexs().forEach((k,v) -> patterns.put(k, Pattern.compile(v)));
-
-    values = new HashMap<>(patterns.size());
+    setRegexes(config.getResponseVariableRegexs());
   }
 
   /**
@@ -49,18 +44,13 @@ public class RegexResponseValueProvider extends EnvironmentValueProvider impleme
   @Override
   void extractValues(Request request, Response response) {
     String resp = response.getPayload();
-    patterns.forEach((key, pat) -> values.put(key, extractValue(key, resp, pat)));
+    patterns.forEach((key, pat) -> parameterMap.put(key, extractValue(key, resp, pat)));
   }
 
-  /**
-   * Returns the value of the given key, which will be looked up first in the System properties and then
-   * in environment variables.
-   *
-   * @return The defined value or null if te key is undefined.
-   */
-  String getValue(String key) {
-    String value = values.get(key);
-    return value != null ? value : super.getValue(key);
+  protected void setRegexes(Map<String, String> regexes) {
+    patterns = new HashMap<>(regexes.size());
+    parameterMap = new HashMap<>(patterns.size());
+    regexes.forEach((k,v) -> patterns.put(k, Pattern.compile(v)));
   }
 
   private String extractValue(String key, String resp, Pattern pattern) {
@@ -77,7 +67,7 @@ public class RegexResponseValueProvider extends EnvironmentValueProvider impleme
       } else {
         // If the regex has one or more groups then append them in order
         for(int g = 1; g <= matcher.groupCount(); g++) {
-          if(values.length() > 0) {
+          if(g > 1) {
             values.append(MULTI_VALUE_SEPARATOR);
           }
           values.append(matcher.group(g));

@@ -44,21 +44,15 @@ public class TemplatedPayloadGenerator implements PayloadGenerator, Configurable
 
     valueProvider = config.getValueProvider();
     templateEngine = config.getTemplateEngine();
+
+    populateValues();
   }
 
   @Override
   public boolean update(Request request, Response response) {
     valueProvider.update(request,response);
 
-    requestBodyValue = templateEngine.renderTemplate(requestBodyTemplate, valueProvider);
-    requestParameterTemplates
-      .forEach((k, v) -> requestParameterValues.put(k, templateEngine.renderTemplate(v, valueProvider)));
-    requestHeaderTemplates
-      .forEach((k, v) -> requestHeaderValues.put(k, templateEngine.renderTemplate(v, valueProvider)));
-
-    log.info("Body to be sent: {}", requestBodyValue);
-    log.info("Parameters to be sent: {}", Arrays.toString(requestParameterValues.entrySet().toArray()));
-    log.info("Headers to be sent: {}", Arrays.toString(requestHeaderValues.entrySet().toArray()));
+    populateValues();
 
     // False = Wait for the next poll cycle before calling again.
     return false;
@@ -87,5 +81,18 @@ public class TemplatedPayloadGenerator implements PayloadGenerator, Configurable
   @Override
   public void setOffsets(Map<String, Object> offsets) {
     valueProvider.setParameters(offsets);
+    populateValues();
+  }
+
+  private void populateValues() {
+    requestBodyValue = templateEngine.renderTemplate(requestBodyTemplate, valueProvider);
+    requestParameterTemplates
+      .forEach((k, v) -> requestParameterValues.put(k, templateEngine.renderTemplate(v, valueProvider)));
+    requestHeaderTemplates
+      .forEach((k, v) -> requestHeaderValues.put(k, templateEngine.renderTemplate(v, valueProvider)));
+
+    log.info("Body to be sent: {}", requestBodyValue);
+    log.info("Parameters to be sent: {}", Arrays.toString(requestParameterValues.entrySet().toArray()));
+    log.info("Headers to be sent: {}", Arrays.toString(requestHeaderValues.entrySet().toArray()));
   }
 }

@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public abstract class AbstractValueProvider implements ValueProvider {
 
-  private Map<String, String> parameterMap = new HashMap<>();
+  protected Map<String, String> parameterMap = new HashMap<>();
 
 
   /**
@@ -79,6 +79,7 @@ public abstract class AbstractValueProvider implements ValueProvider {
    */
   @Override
   public void setParameters(Map<String, Object> params) {
+    parameterMap.clear();
     params.forEach((k, v) -> parameterMap.put(k, v.toString()));
   }
 }

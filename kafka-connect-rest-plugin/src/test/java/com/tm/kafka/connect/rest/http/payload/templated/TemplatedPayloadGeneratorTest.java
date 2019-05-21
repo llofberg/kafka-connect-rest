@@ -1,6 +1,8 @@
 package com.tm.kafka.connect.rest.http.payload.templated;
 
 
+import com.tm.kafka.connect.rest.RestSinkConnectorConfig;
+import com.tm.kafka.connect.rest.RestSourceConnectorConfig;
 import com.tm.kafka.connect.rest.http.Request;
 import com.tm.kafka.connect.rest.http.Response;
 import com.tm.kafka.connect.rest.http.payload.ConstantPayloadGenerator;
@@ -23,7 +25,7 @@ import static org.junit.Assert.assertThat;
 
 public class TemplatedPayloadGeneratorTest {
 
-  private static String REQUEST_BODY_VAL = "{\"query\": \"select * from known_stars where name=${STAR_NAME}\"";
+  private static String REQUEST_BODY_VAL = "{\"query\": \"select * from known_stars where name='${STAR_NAME}'\"";
 
   private static final Map<String, String> REQUEST_PARAM_VAL = Stream.of(new String[][] {
     { "priority", "MAXIMUM" },
@@ -36,11 +38,11 @@ public class TemplatedPayloadGeneratorTest {
   }).collect(Collectors.toMap(d -> d[0], d -> d[1]));
 
   private static final Map<String, String> CONFIG_PROPS = Stream.of(new String[][] {
-    { ConstantPayloadGeneratorConfig.REQUEST_BODY_CONFIG, REQUEST_BODY_VAL },
-    { ConstantPayloadGeneratorConfig.REQUEST_HEADERS_CONFIG, "Content-Type:application/json, Accept:application/json" },
-    { ConstantPayloadGeneratorConfig.REQUEST_PARAMETER_NAMES_CONFIG, "priority, paged" },
-    { String.format(ConstantPayloadGeneratorConfig.REQUEST_PARAMETER_VALUE_CONFIG, "priority"), "MAXIMUM" },
-    { String.format(ConstantPayloadGeneratorConfig.REQUEST_PARAMETER_VALUE_CONFIG, "paged"), "FALSE" },
+    { TemplatedPayloadGeneratorConfig.REQUEST_BODY_TEMPLATE_CONFIG, REQUEST_BODY_VAL },
+    { TemplatedPayloadGeneratorConfig.REQUEST_HEADERS_TEMPLATE_CONFIG, "Content-Type:${CONTENT_TYPE}, Accept:${ACCEPT_TYPE}" },
+    { TemplatedPayloadGeneratorConfig.REQUEST_PARAMETER_NAMES_CONFIG, "priority, paged" },
+    { String.format(TemplatedPayloadGeneratorConfig.REQUEST_PARAMETER_TEMPLATE_CONFIG, "priority"), "${PRIORITY}" },
+    { String.format(TemplatedPayloadGeneratorConfig.REQUEST_PARAMETER_TEMPLATE_CONFIG, "paged"), "${PAGED}" },
   }).collect(Collectors.toMap(d -> d[0], d -> d[1]));
 
   private static final Request REQUEST = new Request("http://data.stars.org/query", "POST",
@@ -48,11 +50,11 @@ public class TemplatedPayloadGeneratorTest {
 
   private static final Response RESPONSE = new Response(200, Collections.emptyMap(), "LOTS of data");
 
-  private ConstantPayloadGenerator generator;
+  private TemplatedPayloadGenerator generator;
 
   @Before
   public void before() {
-    generator = new ConstantPayloadGenerator();
+    generator = new TemplatedPayloadGenerator();
   }
 
 
@@ -64,9 +66,9 @@ public class TemplatedPayloadGeneratorTest {
 
   @Test
   public void testGetRequestBody() {
+    System.setProperty("STAR_NAME", "Sol");
     generator.configure(CONFIG_PROPS);
-    System.setProperty("STAR_NAME", "Sol")
-    assertThat(generator.getRequestBody(), Matchers.equalTo("{\"query\": \"select * from known_stars\""));
+    assertThat(generator.getRequestBody(), Matchers.equalTo("{\"query\": \"select * from known_stars where name='Sol'\""));
   }
 
   @Test
@@ -77,8 +79,12 @@ public class TemplatedPayloadGeneratorTest {
 
   @Test
   public void testGetRequestParameters() {
+    System.setProperty("PRIORITY", "MAXIMUM");
+    System.setProperty("PAGED", "FALSE");
     generator.configure(CONFIG_PROPS);
-    assertThat(generator.getRequestParameters(), allOf(hasEntry("priority", "MAXIMUM"), hasEntry("paged", "FALSE")));
+    assertThat(generator.getRequestParameters(), allOf(
+      hasEntry("priority", "MAXIMUM"),
+      hasEntry("paged", "FALSE")));
   }
 
   @Test
@@ -89,9 +95,12 @@ public class TemplatedPayloadGeneratorTest {
 
   @Test
   public void testGetRequestHeaders() {
+    System.setProperty("CONTENT_TYPE", "application/json");
+    System.setProperty("ACCEPT_TYPE", "application/json");
     generator.configure(CONFIG_PROPS);
     assertThat(generator.getRequestHeaders(), allOf(
-      hasEntry("Content-Type", "application/json"), hasEntry("Accept", "application/json")));
+      hasEntry("Content-Type", "application/json"),
+      hasEntry("Accept", "application/json")));
   }
 
   @Test
@@ -102,14 +111,39 @@ public class TemplatedPayloadGeneratorTest {
 
   @Test
   public void testGetOffsets() {
+    System.setProperty("STAR_NAME", "Vega");
+    System.setProperty("PRIORITY", "MINIMUM");
+    System.setProperty("PAGED", "TRUE");
+    System.setProperty("CONTENT_TYPE", "text/plain");
+    System.setProperty("ACCEPT_TYPE", "text/plain");
     generator.configure(CONFIG_PROPS);
-    assertThat(generator.getOffsets(), hasEntry(Matchers.equalTo("timestamp"), instanceOf(Long.class)));
+    assertThat(generator.getOffsets(), allOf(
+      hasEntry("STAR_NAME", "Vega"),
+      hasEntry("PRIORITY", "MINIMUM"),
+      hasEntry("PAGED", "TRUE"),
+      hasEntry("CONTENT_TYPE", "text/plain"),
+      hasEntry("ACCEPT_TYPE", "text/plain")));
+  }
+
+  @Test
+  public void testGetOffsets_configUndefined() {
+    generator.configure(Collections.emptyMap());
+    assertThat(generator.getOffsets(), not(hasKey(anything())));
   }
 
   @Test
   public void testSetOffsets() {
     generator.configure(CONFIG_PROPS);
-    generator.setOffsets(null);
-    assertThat(generator.getOffsets(), notNullValue());
+    generator.setOffsets(Collections.singletonMap("STAR_NAME", "Pollux"));
+    assertThat(generator.getOffsets(), hasEntry("STAR_NAME", "Pollux"));
+    assertThat(generator.getRequestBody(), Matchers.equalTo("{\"query\": \"select * from known_stars where name='Pollux'\""));
+  }
+
+  @Test
+  public void testSetOffsets_configUndefined() {
+    generator.configure(Collections.emptyMap());
+    generator.setOffsets(Collections.singletonMap("STAR_NAME", "Pollux"));
+    assertThat(generator.getOffsets(), hasEntry("STAR_NAME", "Pollux"));
+    assertThat(generator.getRequestBody(), Matchers.equalTo(""));
   }
 }
