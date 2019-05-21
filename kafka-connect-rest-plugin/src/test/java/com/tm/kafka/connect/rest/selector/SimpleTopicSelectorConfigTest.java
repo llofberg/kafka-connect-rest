@@ -1,4 +1,4 @@
-package com.tm.kafka.connect.rest;
+package com.tm.kafka.connect.rest.selector;
 
 import com.tm.kafka.connect.rest.selector.SimpleTopicSelectorConfig;
 import org.junit.Test;
