@@ -6,7 +6,6 @@ import com.tm.kafka.connect.rest.http.Response;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -22,22 +21,25 @@ public abstract class AbstractValueProvider implements ValueProvider {
 
   /**
    * Extract the values that will be used by the template engine from the last request-response cycle.
+   * It is not necessary for parameters used by the value provider to come from the request or response,
+   * and in some cases this method may do nothing.
    *
    * @param request The last request made.
    * @param response The last response received.
    */
-  abstract void extractValues(Request request, Response response);
+  protected abstract void extractValues(Request request, Response response);
 
   /**
    * Get the value for a given key.
+   * This method is called if the key cannot be found in the current set of cached parameters.
    *
    * @param key the key to lookup
    * @return the value or null if the key is undefined.
    */
-  abstract String getValue(String key);
+  protected abstract String getValue(String key);
 
   /**
-   * This implementation doesn't udate
+   * Update the parameter values based on the last request and response.
    *
    * @param request The last request made.
    * @param response The last response received.
@@ -49,10 +51,9 @@ public abstract class AbstractValueProvider implements ValueProvider {
   }
 
   /**
-   * Returns the value of the given key, which will be looked up first in the System properties and then
-   * in environment variables.
+   * Returns the value of the given key.
    *
-   * @return The defined value or null if te key is undefined.
+   * @return The defined value or null if the key is undefined.
    */
   @Override
   public String lookupValue(String key) {
@@ -62,7 +63,7 @@ public abstract class AbstractValueProvider implements ValueProvider {
   }
 
   /**
-   * Get the map of keys to values that have been requested since the last update.
+   * Get the key-value pairs that have been requested since the last update.
    *
    * @return The parameter map.
    */
@@ -73,7 +74,8 @@ public abstract class AbstractValueProvider implements ValueProvider {
 
   /**
    * Set the map of keys to values that will be used to generate the next template.
-   * Note that the update method may overwrite some or all of these mappings.
+   * Note that the update method will overwrite these mappings.
+   * This method would normally be used to set initial state.
    *
    * @param params The parameter map.
    */

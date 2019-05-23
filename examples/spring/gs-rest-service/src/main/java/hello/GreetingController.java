@@ -1,10 +1,15 @@
 package hello;
 
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static hello.Calculation.Expression.Operation.*;
+
 
 @RestController
 @Slf4j
@@ -46,9 +51,15 @@ public class GreetingController {
     }
 
   @RequestMapping(value = "/sum-plain", produces = "text/plain")
-  public String sum(@RequestParam(value = "val1", defaultValue = "1") long val1,
-                    @RequestParam(value = "val2", defaultValue = "1") long val2) {
-    return String.format("%d + %d = %d", val1, val2, (val1 + val2));
+  public String sumPlain(@RequestParam(value = "val1", defaultValue = "1") double val1,
+                    @RequestParam(value = "val2", defaultValue = "1") double val2) {
+    return String.format("%f + %f = %f", val1, val2, (val1 + val2));
+  }
+
+  @RequestMapping(value = "/sum-xml", produces = "text/xml")
+  public Calculation sumXml(@RequestParam(value = "val1", defaultValue = "1") double val1,
+                    @RequestParam(value = "val2", defaultValue = "1") double val2) {
+    return new Calculation(SUM, Arrays.asList(val1, val2), (val1 + val2));
   }
 
   @PostMapping(value = "/count")

@@ -67,12 +67,12 @@ public class AbstractValueProviderTest {
     }
 
     @Override
-    void extractValues(Request request, Response response) {
+    protected void extractValues(Request request, Response response) {
       parameterMap.put("body", response.getPayload());
     }
 
     @Override
-    String getValue(String key) {
+    protected String getValue(String key) {
       return "test".equals(key) ? "yeah" : null;
     }
   }

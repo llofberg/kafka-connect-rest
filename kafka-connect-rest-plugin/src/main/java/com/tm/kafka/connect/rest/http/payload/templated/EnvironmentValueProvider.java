@@ -4,8 +4,6 @@ package com.tm.kafka.connect.rest.http.payload.templated;
 import com.tm.kafka.connect.rest.http.Request;
 import com.tm.kafka.connect.rest.http.Response;
 
-import java.util.Map;
-
 
 /**
  * Lookup values used to populate dynamic payloads.
@@ -15,8 +13,14 @@ import java.util.Map;
  */
 public class EnvironmentValueProvider extends AbstractValueProvider {
 
+  /**
+   * This method does nothing as none of the values used by this class are based on the request or response.
+   *
+   * @param request The last request made.
+   * @param response The last response received.
+   */
   @Override
-  void extractValues(Request request, Response response) {
+  protected void extractValues(Request request, Response response) {
     // Do nothing
   }
 
@@ -27,7 +31,7 @@ public class EnvironmentValueProvider extends AbstractValueProvider {
    * @return The defined value or null if te key is undefined.
    */
   @Override
-  String getValue(String key) {
+  protected String getValue(String key) {
     String value = System.getProperty(key);
     return (value != null) ? value : System.getenv(key);
   }

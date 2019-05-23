@@ -14,12 +14,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -87,17 +82,7 @@ public class RestTaskTest {
     List<SourceRecord> messages;
 
     sourceTask = new RestSourceTask();
-    SourceTaskContext context1 = new SourceTaskContext() {
-      @Override
-      public Map<String, String> configs() {
-        return null;
-      }
-
-      @Override
-      public OffsetStorageReader offsetStorageReader() {
-        return null;
-      }
-    };
+    SourceTaskContext context1 = new MockSourceTaskContext();
     sourceTask.initialize(context1);
     sourceTask.start(props);
     messages = sourceTask.poll();
@@ -210,6 +195,29 @@ public class RestTaskTest {
       return localPort;
     } catch (Exception e) {
       throw new RuntimeException("Failed to get a free PORT", e);
+    }
+  }
+
+  protected static class MockSourceTaskContext implements SourceTaskContext {
+    @Override
+    public Map<String, String> configs() {
+      return null;
+    }
+
+    @Override
+    public OffsetStorageReader offsetStorageReader() {
+      return new OffsetStorageReader() {
+
+        @Override
+        public <T> Map<String, Object> offset(Map<String, T> map) {
+          return null;
+        }
+
+        @Override
+        public <T> Map<Map<String, T>, Map<String, Object>> offsets(Collection<Map<String, T>> collection) {
+          return null;
+        }
+      };
     }
   }
 
