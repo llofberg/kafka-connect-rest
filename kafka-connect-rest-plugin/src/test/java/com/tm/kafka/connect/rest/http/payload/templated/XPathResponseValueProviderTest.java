@@ -3,6 +3,7 @@ package com.tm.kafka.connect.rest.http.payload.templated;
 
 import com.tm.kafka.connect.rest.http.Request;
 import com.tm.kafka.connect.rest.http.Response;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -19,6 +20,11 @@ public class XPathResponseValueProviderTest {
   Response response = mock(Response.class);
 
   XPathResponseValueProvider provider = new XPathResponseValueProvider();
+
+  @Before
+  public void before() {
+    provider.configure(Collections.emptyMap());
+  }
 
   @Test
   public void extractValuesTest_oneMatch() {
@@ -57,7 +63,7 @@ public class XPathResponseValueProviderTest {
     provider.setExpressions(Collections.singletonMap("name", "/greeting/title"));
     when(response.getPayload()).thenReturn("<greeting<hailHello><");
     provider.extractValues(request, response);
-    assertThat(provider.getParameters(), hasEntry("name", null));
+    assertThat(provider.getParameters(), not(hasKey(anything())));
   }
 
   @Test
