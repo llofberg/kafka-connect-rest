@@ -53,8 +53,7 @@ public class RestSourceTask extends SourceTask {
 
     pollInterval = connectorConfig.getPollInterval();
     url = connectorConfig.getUrl();
-    requestFactory = new Request.RequestFactory(url, connectorConfig.getMethod(),
-      connectorConfig.getRequestHeaders());
+    requestFactory = new Request.RequestFactory(url, connectorConfig.getMethod());
     payloadGenerator = connectorConfig.getPayloadGenerator();
     responseHandler = connectorConfig.getResponseHandler();
     executor = connectorConfig.getRequestExecutor();
@@ -74,10 +73,12 @@ public class RestSourceTask extends SourceTask {
 
     try {
       while (makeAnotherRequest) {
-        Request request = requestFactory.createRequest(payloadGenerator.getPayload());
+        Request request = requestFactory.createRequest(payloadGenerator.getRequestBody(),
+          payloadGenerator.getRequestParameters(), payloadGenerator.getRequestHeaders());
 
         if (log.isTraceEnabled()) {
-          log.trace("{} request to: {} with payload: {}", request.getMethod(), request.getUrl(), request.getPayload());
+          log.trace("{} request to: {} with parameters: {}, headers: {}, and body: {}", request.getMethod(),
+            request.getUrl(), request.getParameters(), request.getHeaders(), request.getBody());
         }
 
         Response response = executor.execute(request);

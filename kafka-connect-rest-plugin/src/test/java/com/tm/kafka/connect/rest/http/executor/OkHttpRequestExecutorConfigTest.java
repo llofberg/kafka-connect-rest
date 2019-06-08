@@ -1,4 +1,4 @@
-package com.tm.kafka.connect.rest;
+package com.tm.kafka.connect.rest.http.executor;
 
 import com.tm.kafka.connect.rest.http.executor.OkHttpRequestExecutorConfig;
 import org.junit.Test;
