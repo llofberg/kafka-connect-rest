@@ -1,0 +1,5 @@
+# This file lists the available implementations of the ValueProvider SPI interface
+# This interface provides initial values for templated payloads functionality
+com.tm.kafka.connect.rest.http.payload.templated.EnvironmentValueProvider
+com.tm.kafka.connect.rest.http.payload.templated.RegexResponseValueProvider
+com.tm.kafka.connect.rest.http.payload.templated.XPathResponseValueProvider

@@ -15,10 +15,7 @@ import org.apache.kafka.connect.source.SourceTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.tm.kafka.connect.rest.metrics.Metrics.ERROR_METRIC;
 import static com.tm.kafka.connect.rest.metrics.Metrics.increaseCounter;
@@ -38,7 +35,8 @@ public class RestSourceTask extends SourceTask {
   private PayloadGenerator payloadGenerator;
   private ResponseHandler responseHandler;
   private TopicSelector topicSelector;
-  private String url;
+  private Map<String, String> sourcePartition;
+  private ExecutionContext ctx;
 
   @Override
   public void start(Map<String, String> properties) {
@@ -50,14 +48,22 @@ public class RestSourceTask extends SourceTask {
     }
 
     taskName = properties.getOrDefault("name", "unknown");
+    ctx = ExecutionContext.create(taskName);
 
     pollInterval = connectorConfig.getPollInterval();
-    url = connectorConfig.getUrl();
+    String url = connectorConfig.getUrl();
     requestFactory = new Request.RequestFactory(url, connectorConfig.getMethod());
     payloadGenerator = connectorConfig.getPayloadGenerator();
     responseHandler = connectorConfig.getResponseHandler();
     executor = connectorConfig.getRequestExecutor();
     topicSelector = connectorConfig.getTopicSelector();
+
+    sourcePartition = Collections.singletonMap("URL", url);
+    Map<String, Object> offsets = context.offsetStorageReader().offset(sourcePartition);
+    if(offsets != null) {
+      log.info("Loaded Offsets: " + Arrays.toString(offsets.entrySet().toArray()));
+      payloadGenerator.setOffsets(offsets);
+    }
   }
 
   @Override
@@ -67,7 +73,6 @@ public class RestSourceTask extends SourceTask {
       Thread.sleep(millis);
     }
 
-    ExecutionContext ctx = ExecutionContext.create(taskName);
     ArrayList<SourceRecord> records = new ArrayList<>();
     boolean makeAnotherRequest = true;
 
@@ -87,18 +92,16 @@ public class RestSourceTask extends SourceTask {
           log.trace("Response: {}, Request: {}", response, request);
         }
 
-        Map<String, String> sourcePartition = Collections.singletonMap("URL", url);
-        Map<String, Long> sourceOffset = Collections.singletonMap("timestamp", currentTimeMillis());
+        makeAnotherRequest = payloadGenerator.update(request, response);
+
         for (String responseRecord : responseHandler.handle(response, ctx)) {
-          SourceRecord sourceRecord = new SourceRecord(sourcePartition, sourceOffset,
+          SourceRecord sourceRecord = new SourceRecord(sourcePartition, payloadGenerator.getOffsets(),
             topicSelector.getTopic(responseRecord), Schema.STRING_SCHEMA, responseRecord);
           for (Map.Entry<String, List<String>> header : response.getHeaders().entrySet()) {
             sourceRecord.headers().add(header.getKey(), header.getValue(), SchemaBuilder.array(Schema.STRING_SCHEMA).build());
           }
           records.add(sourceRecord);
         }
-
-        makeAnotherRequest = payloadGenerator.update(request, response);
       }
     } catch (Exception e) {
       log.error("HTTP call execution failed " + e.getMessage(), e);
@@ -111,7 +114,7 @@ public class RestSourceTask extends SourceTask {
   }
 
   @Override
-  public void stop() {
+  public synchronized void stop() {
     log.debug("Stopping source task");
   }
 

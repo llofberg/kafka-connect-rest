@@ -74,4 +74,17 @@ public class ConstantPayloadGeneratorTest {
     generator.configure(Collections.emptyMap());
     assertThat(generator.getRequestHeaders(), not(hasKey(anything())));
   }
+
+  @Test
+  public void testGetOffsets() {
+    generator.configure(CONFIG_PROPS);
+    assertThat(generator.getOffsets(), hasEntry(equalTo("timestamp"), instanceOf(Long.class)));
+  }
+
+  @Test
+  public void testSetOffsets() {
+    generator.configure(CONFIG_PROPS);
+    generator.setOffsets(null);
+    assertThat(generator.getOffsets(), notNullValue());
+  }
 }

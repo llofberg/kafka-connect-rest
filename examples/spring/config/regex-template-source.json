@@ -1,0 +1,24 @@
+{
+  "name": "RegexTemplatedRestSourceConnectorSpring",
+  "config": {
+    "producer.compression.type": "snappy",
+    "connector.class": "com.tm.kafka.connect.rest.RestSourceConnector",
+    "tasks.max": "1",
+    "rest.source.poll.interval.ms": "10000",
+    "rest.source.method": "GET",
+    "rest.source.url": "http://webservice:8080/sum-plain",
+    "rest.source.destination.topics": "restSourceDestinationTopic",
+
+    "rest.source.data.generator": "com.tm.kafka.connect.rest.http.payload.templated.TemplatedPayloadGenerator",
+    "rest.source.param.names": "val1, val2",
+    "rest.source.param.val1.template": "$!{val2}",
+    "rest.source.param.val2.template": "$!{res}",
+    "rest.source.header.template": "Content-Type:text/plain, Accept:text/plain",
+
+    "rest.source.payload.value.provider": "com.tm.kafka.connect.rest.http.payload.templated.RegexResponseValueProvider",
+    "rest.source.response.var.names": "val1, val2, res",
+    "rest.source.response.var.val1.regex": "(\\d+)\\s+\\+\\s+\\d+\\s+=\\s+\\d+",
+    "rest.source.response.var.val2.regex": "\\d+\\s+\\+\\s+(\\d+)\\s+=\\s+\\d+",
+    "rest.source.response.var.res.regex": "\\d+\\s+\\+\\s+\\d+\\s+=\\s+(\\d+)"
+  }
+}
