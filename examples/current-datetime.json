@@ -8,7 +8,6 @@
       "rest.source.poll.interval.ms": "60000",
       "rest.source.method": "GET",
       "rest.source.url": "http://worldclockapi.com/api/json/utc/now",
-      "rest.source.payload.converter.class": "com.tm.kafka.connect.rest.converter.StringPayloadConverter",
       "rest.source.headers": "Content-Type:application/json,Accept:application/json",
       "rest.source.topic.selector": "com.tm.kafka.connect.rest.selector.SimpleTopicSelector",
       "rest.source.destination.topics": "current-datetime"
