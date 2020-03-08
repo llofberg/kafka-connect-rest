@@ -71,7 +71,7 @@ services:
       CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       CONNECT_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      CONNECT_PRODUCER_COMPRESSON_TYPE: "snappy"
+      CONNECT_PRODUCER_COMPRESSION_TYPE: "snappy"
       CONNECT_PLUGIN_PATH: /jars
     volumes:
       - ./jars:/jars
