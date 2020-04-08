@@ -1,0 +1,87 @@
+stages:
+  - build
+  - unit-test
+  - maven-deploy
+  - maven-release
+
+cache:
+  paths:
+    - .m2/repository
+
+# global environment variables apply to all jobs
+variables:
+  # https://contegixapp1.livenation.com/confluence/display/CRP/Enabling+a+new+namespace
+  KUBERNETES_NAMESPACE_OVERWRITE: prd1831
+
+  # The docker registry may need to change to a PCI registry later.  Using AWS PROD for now.
+  TMHUB_EAST: tmhub.io
+
+  # Make sure we are re-using the same maven repo cache between jobs witin this instance of pipeline
+  # The cache only works within the pipeline but not shared across 2 pipelines
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -Xms1024m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -XX:+UseParNewGC"
+
+
+.job_template: &java_job
+  image: "${TMHUB_EAST}/maven/maven:3.3.9-openjdk8u151"
+  variables:
+    MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -Xms1024m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -XX:+UseParNewGC"
+
+# Very important to use the build-in variable $MAVEN_USERNAME and $TOKEN_CICD for maven to commit pom.xml back to git repo
+.job_template: &maven_release
+  <<: *java_job
+  before_script:
+    - git checkout -B $CI_COMMIT_REF_NAME
+  script:
+    - echo "which maven $(which mvn)"
+    - mvn -Dusername=$GITLAB_USER_LOGIN -Dpassword=$TOKEN_CICD -Darguments="-DskipTests=true -Dmaven.javadoc.skip=true" --batch-mode clean release:prepare release:perform -Dresume=false -DautoVersionSubmodules=true -DdryRun=false -DskipITs -DscmCommentPrefix="[ci skip]"
+
+
+build:
+  stage: build
+  tags:
+    - nonprod
+    - aws
+    - us-east-1
+  <<: *java_job
+  script:
+    - mvn -ff clean package -Dmaven.test.skip=true
+    - ls -ltra
+    - ls -ltra target/
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - "**/target/*.jar"
+
+unit test:
+  stage: unit-test
+  tags:
+    - nonprod
+    - us-east-1
+  <<: *java_job
+  script:
+    - mvn -ff -U test
+  # projects can decide whether to fail the pipeline if a test fails
+  allow_failure: false
+
+maven deploy:
+  stage: maven-deploy
+  tags:
+    - nonprod
+    - us-east-1
+  <<: *java_job
+  script:
+    - mvn -ff deploy -Dmaven.test.skip=true
+  except:
+    - tags
+
+# Maven Image maven release only works on EC2 shared runner for now
+maven release:
+  stage: maven-release
+  when: manual
+  tags:
+    - tm-prod cicd build
+  <<: *maven_release
+  only:
+    - master
+  except:
+    - tags
