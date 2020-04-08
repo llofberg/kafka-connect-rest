@@ -44,8 +44,7 @@ build:
   <<: *java_job
   script:
     - mvn -ff clean package -Dmaven.test.skip=true
-    - ls -ltra
-    - ls -ltra target/
+    - ls -ltra **/target/
   artifacts:
     expire_in: 1 hour
     paths:
