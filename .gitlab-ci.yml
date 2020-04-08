@@ -40,7 +40,6 @@ build:
   stage: build
   tags:
     - nonprod
-    - aws
     - us-east-1
   <<: *java_job
   script:
