@@ -73,17 +73,6 @@ public class DLQReporter {
 
   void populateErrorHeaders(ProducerRecord<byte[], byte[]> producerRecord, Exception e) {
     Headers headers = producerRecord.headers();
-
-//    if (context.consumerRecord() != null) {
-//      headers.add(ERROR_HEADER_ORIG_TOPIC, toBytes(context.consumerRecord().topic()));
-//      headers.add(ERROR_HEADER_ORIG_PARTITION, toBytes(context.consumerRecord().partition()));
-//      headers.add(ERROR_HEADER_ORIG_OFFSET, toBytes(context.consumerRecord().offset()));
-//    }
-
-//    headers.add(ERROR_HEADER_CONNECTOR_NAME, toBytes(connectorTaskId.connector()));
-//    headers.add(ERROR_HEADER_TASK_ID, toBytes(String.valueOf(connectorTaskId.task())));
-//    headers.add(ERROR_HEADER_STAGE, toBytes(context.stage().name()));
-//    headers.add(ERROR_HEADER_EXECUTING_CLASS, toBytes(e.executingClass().getName()));
     if (e != null) {
       headers.add(ERROR_HEADER_EXCEPTION, toBytes(e.getClass().getName()));
       headers.add(ERROR_HEADER_EXCEPTION_MESSAGE, toBytes(e.getMessage()));
