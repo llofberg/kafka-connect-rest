@@ -52,7 +52,7 @@ public class RestSinkTask extends SinkTask {
     for (SinkRecord record : records) {
       ExecutionContext ctx = ExecutionContext.create(taskName);
       int retries = maxRetries;
-      while (maxRetries < 0 || --retries >= 0) {
+      while (maxRetries < 0 || retries-- >= 0) {
         try {
           String payload = (String) record.value();
           Request request = requestFactory.createRequest(payload, headers);
@@ -78,7 +78,7 @@ public class RestSinkTask extends SinkTask {
         } catch (RetriableException e) {
           log.error("HTTP call failed", e);
           increaseCounter(RETRIABLE_ERROR_METRIC, ctx);
-          if (retries == 0 && errorReporter != null) errorReporter.reportError(record, e);
+          if (retries == -1 && errorReporter != null) errorReporter.reportError(record, e);
           try {
             Thread.sleep(retryBackoff);
             log.error("Retrying");
