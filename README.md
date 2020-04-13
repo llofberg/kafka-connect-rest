@@ -1,6 +1,6 @@
 Kafka Connect REST connector
 ===
-    This is a fork of a github project https://github.com/llofberg/kafka-connect-rest
+
 Building and running Spring example in docker
 ---
 Build the project and copy the jars to the example
