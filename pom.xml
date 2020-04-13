@@ -19,9 +19,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <kafka.version>2.4.1</kafka.version>
+    <kafka.version>2.2.1</kafka.version>
     <jackson.version>2.9.10.3</jackson.version>
-    <confluent.version>5.4.1</confluent.version>
+    <confluent.version>5.2.1</confluent.version>
     <confluent.maven.repo>http://packages.confluent.io/maven/</confluent.maven.repo>
     <powermock.version>2.0.2</powermock.version>
     <metrics.version>4.1.0</metrics.version>
@@ -34,12 +34,6 @@
       <name>Confluent</name>
       <url>${confluent.maven.repo}</url>
     </repository>
-    <repository>
-      <id>TMCS Nexus - Public</id>
-      <name>TMCS Nexus - Public</name>
-      <url>http://maven.platform.tm.tmcs:8081/nexus/content/groups/public/</url>
-    </repository>
-
   </repositories>
 
   <dependencyManagement>
@@ -346,20 +340,5 @@
       </plugin>
     </plugins>
   </reporting>
-  <distributionManagement>
-    <repository>
-      <id>releases</id>
-      <name>Release Repository</name>
-      <url>http://maven.platform.tm.tmcs:8081/nexus/content/repositories/releases</url>
-    </repository>
-
-    <snapshotRepository>
-      <id>snapshots</id>
-      <name>Snapshots</name>
-      <url>http://maven.platform.tm.tmcs:8081/nexus/content/repositories/snapshots/</url>
-      <uniqueVersion>true</uniqueVersion>
-    </snapshotRepository>
-  </distributionManagement>
-
 
 </project>
