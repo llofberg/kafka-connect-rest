@@ -4,7 +4,6 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.record.RecordBatch;
 import org.apache.kafka.connect.connector.ConnectRecord;
@@ -21,30 +20,32 @@ public class DLQReporter {
   public static final String DLQ_TOPIC_CONFIG = "errors.deadletterqueue.topic.name";
   public static final String DEFAULT_SERIALIZER = "org.apache.kafka.common.serialization.ByteArraySerializer";
   public static final String HEADER_PREFIX = "__connect.errors.";
-  public static final String ERROR_HEADER_ORIG_TOPIC = HEADER_PREFIX + "topic";
-  public static final String ERROR_HEADER_ORIG_PARTITION = HEADER_PREFIX + "partition";
-  public static final String ERROR_HEADER_ORIG_OFFSET = HEADER_PREFIX + "offset";
-  public static final String ERROR_HEADER_CONNECTOR_NAME = HEADER_PREFIX + "connector.name";
-  public static final String ERROR_HEADER_TASK_ID = HEADER_PREFIX + "task.id";
-  public static final String ERROR_HEADER_STAGE = HEADER_PREFIX + "stage";
-  public static final String ERROR_HEADER_EXECUTING_CLASS = HEADER_PREFIX + "class.name";
   public static final String ERROR_HEADER_EXCEPTION = HEADER_PREFIX + "exception.class.name";
   public static final String ERROR_HEADER_EXCEPTION_MESSAGE = HEADER_PREFIX + "exception.message";
   public static final String ERROR_HEADER_EXCEPTION_STACK_TRACE = HEADER_PREFIX + "exception.stacktrace";
   private static final Logger log = LoggerFactory.getLogger(DLQReporter.class);
-  String dlqTopic;
-  Producer<byte[], byte[]> dlqProducer;
+  private String dlqTopic;
+  private Producer<byte[], byte[]> dlqProducer;
 
-  public DLQReporter(AbstractConfig config) {
-    dlqTopic = (String) config.originals().get(DLQ_TOPIC_CONFIG);
-    Properties props = new Properties();
-    props.putAll(config.originalsWithPrefix("producer."));
+  public DLQReporter(String topic, Properties properties) {
     //set default serializers if required
-    if (!props.containsKey(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG))
-      props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_SERIALIZER);
-    if (!props.containsKey(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG))
-      props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_SERIALIZER);
-    dlqProducer = new KafkaProducer<>(props);
+    if (!properties.containsKey(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG))
+      properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_SERIALIZER);
+    if (!properties.containsKey(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG))
+      properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_SERIALIZER);
+    this.dlqTopic = topic;
+    this.dlqProducer = new KafkaProducer<>(properties);
+  }
+
+  public DLQReporter() {
+  }
+
+  public void setDlqTopic(String dlqTopic) {
+    this.dlqTopic = dlqTopic;
+  }
+
+  public void setDlqProducer(Producer<byte[], byte[]> dlqProducer) {
+    this.dlqProducer = dlqProducer;
   }
 
   public void reportError(ConnectRecord msg, Exception e) {
@@ -71,7 +72,7 @@ public class DLQReporter {
     }
   }
 
-  void populateErrorHeaders(ProducerRecord<byte[], byte[]> producerRecord, Exception e) {
+  private void populateErrorHeaders(ProducerRecord<byte[], byte[]> producerRecord, Exception e) {
     Headers headers = producerRecord.headers();
     if (e != null) {
       headers.add(ERROR_HEADER_EXCEPTION, toBytes(e.getClass().getName()));

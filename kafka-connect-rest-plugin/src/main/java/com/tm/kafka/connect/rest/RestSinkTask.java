@@ -43,7 +43,7 @@ public class RestSinkTask extends SinkTask {
     responseHandler = connectorConfig.getResponseHandler();
     executor = connectorConfig.getRequestExecutor();
     if (connectorConfig.isDlqKafkaEnabled())
-      errorReporter = new DLQReporter(connectorConfig);
+      errorReporter = connectorConfig.getDLQReporter();
     else errorReporter = null;
   }
 

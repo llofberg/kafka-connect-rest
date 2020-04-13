@@ -4,6 +4,7 @@ package com.tm.kafka.connect.rest;
 import com.tm.kafka.connect.rest.http.executor.RequestExecutor;
 import com.tm.kafka.connect.rest.http.handler.DefaultResponseHandler;
 import com.tm.kafka.connect.rest.http.handler.ResponseHandler;
+import com.tm.kafka.connect.rest.errors.DLQReporter;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
@@ -16,7 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Properties;
 
+import static com.tm.kafka.connect.rest.errors.DLQReporter.DLQ_TOPIC_CONFIG;
 import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
 
 
@@ -237,6 +240,13 @@ public class RestSinkConnectorConfig extends AbstractConfig {
 
   public Boolean isDlqKafkaEnabled() {
     return this.getBoolean(SINK_DLQ_KAFKA_ENABLE_CONFIG);
+  }
+
+  public DLQReporter getDLQReporter() {
+    String topic = (String) this.originals().get(DLQ_TOPIC_CONFIG);
+    Properties props = new Properties();
+    props.putAll(this.originalsWithPrefix("producer."));
+    return new DLQReporter(topic, props);
   }
 
   private static class MethodRecommender implements ConfigDef.Recommender {
