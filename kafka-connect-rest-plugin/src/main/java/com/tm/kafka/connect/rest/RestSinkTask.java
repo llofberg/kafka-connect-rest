@@ -1,5 +1,6 @@
 package com.tm.kafka.connect.rest;
 
+import com.tm.kafka.connect.rest.errors.DLQReporter;
 import com.tm.kafka.connect.rest.http.Request;
 import com.tm.kafka.connect.rest.http.Response;
 import com.tm.kafka.connect.rest.http.executor.RequestExecutor;
@@ -29,6 +30,7 @@ public class RestSinkTask extends SinkTask {
   private RequestExecutor executor;
   private ResponseHandler responseHandler;
   private String taskName = "";
+  private DLQReporter errorReporter;
 
   @Override
   public void start(Map<String, String> map) {
@@ -40,6 +42,9 @@ public class RestSinkTask extends SinkTask {
     maxRetries = connectorConfig.getMaxRetries();
     responseHandler = connectorConfig.getResponseHandler();
     executor = connectorConfig.getRequestExecutor();
+    if (connectorConfig.isDlqKafkaEnabled())
+      errorReporter = connectorConfig.getDLQReporter();
+    else errorReporter = null;
   }
 
   @Override
@@ -74,6 +79,7 @@ public class RestSinkTask extends SinkTask {
         } catch (RetriableException e) {
           log.error("HTTP call failed", e);
           increaseCounter(RETRIABLE_ERROR_METRIC, ctx);
+          if (retries == -1 && errorReporter != null) errorReporter.reportError(record, e);
           try {
             Thread.sleep(retryBackoff);
             log.error("Retrying");
@@ -83,6 +89,7 @@ public class RestSinkTask extends SinkTask {
         } catch (Exception e) {
           log.error("HTTP call execution failed " + e.getMessage(), e);
           increaseCounter(UNRETRIABLE_ERROR_METRIC, ctx);
+          if (errorReporter != null) errorReporter.reportError(record, e);
           break;
         }
       }
