@@ -26,13 +26,15 @@ import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
 public class RestSinkConnectorConfig extends AbstractConfig {
 
   static final String SINK_METHOD_CONFIG = "rest.sink.method";
-  static final String SINK_HEADERS_LIST_CONFIG = "rest.sink.headers";
-  static final String SINK_URL_CONFIG = "rest.sink.url";
   private static final String SINK_METHOD_DOC = "The HTTP method for REST sink connector.";
   private static final String SINK_METHOD_DISPLAY = "Sink method";
   private static final String SINK_METHOD_DEFAULT = "POST";
+
+  static final String SINK_HEADERS_LIST_CONFIG = "rest.sink.headers";
   private static final String SINK_HEADERS_LIST_DISPLAY = "Sink request headers";
   private static final String SINK_HEADERS_LIST_DOC = "The request headers for REST sink connector.";
+
+  static final String SINK_URL_CONFIG = "rest.sink.url";
   private static final String SINK_URL_DOC = "The URL for REST sink connector.";
   private static final String SINK_URL_DISPLAY = "URL for REST sink connector.";
 

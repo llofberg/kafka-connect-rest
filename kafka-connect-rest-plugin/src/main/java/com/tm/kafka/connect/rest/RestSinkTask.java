@@ -56,6 +56,7 @@ public class RestSinkTask extends SinkTask {
         try {
           String payload = (String) record.value();
           Request request = requestFactory.createRequest(payload, headers);
+
           Map<String, String> headers = request.getHeaders();
           if (record.headers() != null) {
             for (Header header : record.headers()) {
