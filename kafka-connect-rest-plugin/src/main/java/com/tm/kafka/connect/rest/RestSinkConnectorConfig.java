@@ -4,6 +4,7 @@ package com.tm.kafka.connect.rest;
 import com.tm.kafka.connect.rest.http.executor.RequestExecutor;
 import com.tm.kafka.connect.rest.http.handler.DefaultResponseHandler;
 import com.tm.kafka.connect.rest.http.handler.ResponseHandler;
+import com.tm.kafka.connect.rest.errors.DLQReporter;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
@@ -16,22 +17,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Properties;
 
+import static com.tm.kafka.connect.rest.errors.DLQReporter.DLQ_TOPIC_CONFIG;
 import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
 
 
 public class RestSinkConnectorConfig extends AbstractConfig {
 
   static final String SINK_METHOD_CONFIG = "rest.sink.method";
+  static final String SINK_HEADERS_LIST_CONFIG = "rest.sink.headers";
+  static final String SINK_URL_CONFIG = "rest.sink.url";
   private static final String SINK_METHOD_DOC = "The HTTP method for REST sink connector.";
   private static final String SINK_METHOD_DISPLAY = "Sink method";
   private static final String SINK_METHOD_DEFAULT = "POST";
-
-  static final String SINK_HEADERS_LIST_CONFIG = "rest.sink.headers";
   private static final String SINK_HEADERS_LIST_DISPLAY = "Sink request headers";
   private static final String SINK_HEADERS_LIST_DOC = "The request headers for REST sink connector.";
-
-  static final String SINK_URL_CONFIG = "rest.sink.url";
   private static final String SINK_URL_DOC = "The URL for REST sink connector.";
   private static final String SINK_URL_DISPLAY = "URL for REST sink connector.";
 
@@ -67,6 +68,11 @@ public class RestSinkConnectorConfig extends AbstractConfig {
   private static final String SINK_DATE_FORMAT_DISPLAY = "Date format for interpolation";
   private static final String SINK_DATE_FORMAT_DOC = "Date format for interpolation. The default is MM-dd-yyyy HH:mm:ss.SSS";
   private static final String SINK_DATE_FORMAT_DEFAULT = "MM-dd-yyyy HH:mm:ss.SSS";
+
+  private static final String SINK_DLQ_KAFKA_ENABLE_CONFIG = "rest.deadletter.kafka.enabled";
+  private static final String SINK_DLQ_KAFKA_ENABLE_DISPLAY = "HTTP request error to kafka";
+  private static final String SINK_DLQ_KAFKA_ENABLE_DOC = "Enable deadletter queue support for error records";
+  private static final Boolean SINK_DLQ_KAFKA_ENABLE_DEFAULT = false;
 
   private static final long SINK_RETRY_BACKOFF_DEFAULT = 5000L;
 
@@ -184,6 +190,16 @@ public class RestSinkConnectorConfig extends AbstractConfig {
         ++orderInGroup,
         ConfigDef.Width.NONE,
         SINK_DATE_FORMAT_DISPLAY)
+
+      .define(SINK_DLQ_KAFKA_ENABLE_CONFIG,
+        Type.BOOLEAN,
+        SINK_DLQ_KAFKA_ENABLE_DEFAULT,
+        Importance.LOW,
+        SINK_DLQ_KAFKA_ENABLE_DOC,
+        group,
+        ++orderInGroup,
+        ConfigDef.Width.NONE,
+        SINK_DLQ_KAFKA_ENABLE_DISPLAY)
       ;
   }
 
@@ -220,6 +236,17 @@ public class RestSinkConnectorConfig extends AbstractConfig {
       this.getString(SINK_HTTP_CODES_WHITELIST_CONFIG),
       this.getString(SINK_HTTP_CODES_BLACKLIST_CONFIG)
     );
+  }
+
+  public Boolean isDlqKafkaEnabled() {
+    return this.getBoolean(SINK_DLQ_KAFKA_ENABLE_CONFIG);
+  }
+
+  public DLQReporter getDLQReporter() {
+    String topic = (String) this.originals().get(DLQ_TOPIC_CONFIG);
+    Properties props = new Properties();
+    props.putAll(this.originalsWithPrefix("producer."));
+    return new DLQReporter(topic, props);
   }
 
   private static class MethodRecommender implements ConfigDef.Recommender {
