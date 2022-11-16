@@ -20,7 +20,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <kafka.version>2.2.1</kafka.version>
-    <jackson.version>2.9.10.3</jackson.version>
+    <jackson.version>2.12.7.1</jackson.version>
     <confluent.version>5.2.1</confluent.version>
     <confluent.maven.repo>http://packages.confluent.io/maven/</confluent.maven.repo>
     <powermock.version>2.0.2</powermock.version>
